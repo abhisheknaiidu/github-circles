@@ -9,7 +9,11 @@ module.exports = {
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      transitionTimingFunction: {
+        slow: "cubic-bezier(.15,.47,.27,.99)",
+      },
+    },
   },
   plugins: [],
 };
