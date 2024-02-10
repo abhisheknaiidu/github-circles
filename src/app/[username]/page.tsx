@@ -111,27 +111,28 @@ function Page() {
   useEffect(() => {
     console.log({ width, height, min: Math.min(width, height) });
   }, [width, height]);
+
+  const size = Math.min(width, height);
   return (
     <div
-      className="grid items-center w-full h-full gap-4 px-4 "
+      className="grid items-center w-full h-full gap-6 px-4"
       style={{
         gridTemplateRows: "1fr auto",
       }}
     >
       <div
-        className="flex items-center justify-center w-full h-full "
+        className="flex items-center justify-center w-full h-full animate-fade"
         ref={containerRef}
       >
-        {width &&
-          height &&
+        {size &&
           (circleData ? (
             <div className="relative flex items-center justify-center">
               <div className="opacity-20">
                 <div
                   className="bg-black rounded-full animate-pulse bg-blend-overlay"
                   style={{
-                    height: height + "px",
-                    width: height + "px",
+                    height: size + "px",
+                    width: size + "px",
                   }}
                 ></div>
               </div>
@@ -140,8 +141,8 @@ function Page() {
                   className="bg-black rounded-full animate-pulse bg-blend-overlay"
                   style={{
                     animationDelay: ".5s",
-                    height: height / 1.3 + "px",
-                    width: height / 1.3 + "px",
+                    height: size / 1.3 + "px",
+                    width: size / 1.3 + "px",
                   }}
                 />
               </div>
@@ -150,8 +151,8 @@ function Page() {
                   className="bg-black rounded-full animate-pulse bg-blend-overlay"
                   style={{
                     animationDelay: ".7s",
-                    height: height / 2 + "px",
-                    width: height / 2 + "px",
+                    height: size / 2 + "px",
+                    width: size / 2 + "px",
                   }}
                 />
               </div>
