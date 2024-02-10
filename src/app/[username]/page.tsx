@@ -160,7 +160,7 @@ function Page() {
             <>Draw Here</>
           ))}
       </div>
-      <div className="flex items-center justify-center w-full gap-4">
+      <div className="flex items-center justify-center w-full gap-4 animate-fade">
         <button className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30">
           <Image src={DownloadIcon} alt="Download" width={20} height={20} />
         </button>

@@ -17,3 +17,18 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+@layer utilities {
+  .animation-delay-75 {
+    animation-delay: 75ms;
+  }
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+  .animation-delay-1000 {
+    animation-delay: 1s;
+  }
+}
