@@ -12,7 +12,7 @@ import axios from "axios";
 import html2canvas from "html2canvas";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { CSSProperties, useEffect, useRef, useState } from "react";
+import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 
 const layerProperties = [
   {
@@ -110,30 +110,31 @@ function Page() {
   const searchParams = useSearchParams();
   const username = params.username;
   const token = searchParams.get("token");
-  const router = useRouter();
 
   // define layers based on available no of users
-  let layers: {
-    login: string;
-    avatar_url: string;
-  }[][] = [];
-
-  circleData
-    ?.slice(0, cumulativeLayersCount[cumulativeLayersCount.length - 1])
-    .forEach((user, index) => {
-      // check for cumulative layers index
-      let layerIndex = 0;
-      for (let i = 0; i < cumulativeLayersCount.length; i++) {
-        if (index < cumulativeLayersCount[i]) {
-          layerIndex = i;
-          break;
+  const layers = useMemo(() => {
+    let layers: {
+      login: string;
+      avatar_url: string;
+    }[][] = [];
+    circleData
+      ?.slice(0, cumulativeLayersCount[cumulativeLayersCount.length - 1])
+      .forEach((user, index) => {
+        // check for cumulative layers index
+        let layerIndex = 0;
+        for (let i = 0; i < cumulativeLayersCount.length; i++) {
+          if (index < cumulativeLayersCount[i]) {
+            layerIndex = i;
+            break;
+          }
         }
-      }
-      if (!layers[layerIndex]) {
-        layers[layerIndex] = [];
-      }
-      layers[layerIndex].push(user);
-    });
+        if (!layers[layerIndex]) {
+          layers[layerIndex] = [];
+        }
+        layers[layerIndex].push(user);
+      });
+    return layers;
+  }, [circleData]);
 
   useEffect(() => {
     async function fetchData() {
@@ -141,9 +142,11 @@ function Page() {
       dataFetchedRef.current = true;
       try {
         const headers = {
-          headers: {
-            Authorization: `bearer ${token}`,
-          },
+          headers: token
+            ? {
+                Authorization: `bearer ${token}`,
+              }
+            : {},
         };
         const followersResponse = await axios.get(
           `https://api.github.com/users/${username}/followers`,
@@ -224,8 +227,25 @@ function Page() {
           ?.split(cookieSep)[0]
           .split("=")[1];
 
-        const userData = JSON.parse(cookie);
+        let userData = JSON.parse(cookie);
         userData.avatar_url = `https://avatars.githubusercontent.com/u/${userData.id}?v=4`;
+
+        if (
+          userData.login.toLowerCase() !== username.toString().toLowerCase()
+        ) {
+          // fetch userdata of the current user
+          const userResponse = await axios.get(
+            `https://api.github.com/users/${username}`,
+            headers
+          );
+
+          const user = userResponse.data;
+          userData = {
+            login: user.login,
+            avatar_url: user.avatar_url,
+            score: 3,
+          };
+        }
 
         setTopFriends([userData, ...sortedUsers]);
         setLoading(false);
@@ -248,6 +268,24 @@ function Page() {
       a.href = img;
       a.download = "github-circle.png";
       a.click();
+    }
+  };
+
+  const copyImage = async () => {
+    if (circleRef.current) {
+      const canvas = await html2canvas(circleRef.current);
+      const img = canvas.toDataURL("image/png");
+      navigator.clipboard.writeText(img);
+    }
+  };
+
+  const shareToTwitter = async () => {
+    if (circleRef.current) {
+      const canvas = await html2canvas(circleRef.current);
+      const img = canvas.toDataURL("image/png");
+      // https://twitter.com/intent/tweet/?text=&url=https%3A%2F%2Fcred.club%2Farticles%2Fbanking-is-now-open
+      const url = `https://twitter.com/intent/tweet?text=Check out my GitHub Circle www.github-circle.xyz&url=${img}`;
+      window.open(url, "_blank");
     }
   };
 
@@ -373,10 +411,16 @@ function Page() {
         >
           <Image src={DownloadIcon} alt="Download" width={20} height={20} />
         </button>
-        <button className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30">
+        <button
+          className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
+          onClick={copyImage}
+        >
           <Image src={CopyIcon} alt="Download" width={20} height={20} />
         </button>
-        <button className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30">
+        <button
+          className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
+          onClick={shareToTwitter}
+        >
           <Image src={XIcon} alt="Download" width={20} height={20} />
         </button>
       </div>
