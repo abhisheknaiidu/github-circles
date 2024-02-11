@@ -5,6 +5,12 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@types/dom-to-image':
+    specifier: ^2.6.7
+    version: 2.6.7
+  dom-to-image:
+    specifier: ^2.6.0
+    version: 2.6.0
   next:
     specifier: 14.0.4
     version: 14.0.4(react-dom@18.2.0)(react@18.2.0)
@@ -289,6 +295,10 @@ packages:
     resolution: {integrity: sha512-E4KcWTpoLHqwPHLxidpOqQbcrZVgi0rsmmZXUle1jXmJfuIf/UWpczUJ7MZZ5tlxytgJXyp0w4PGkkeLiuIdZw==}
     dependencies:
       tslib: 2.6.2
+    dev: false
+
+  /@types/dom-to-image@2.6.7:
+    resolution: {integrity: sha512-me5VbCv+fcXozblWwG13krNBvuEOm6kA5xoa4RrjDJCNFOZSWR3/QLtOXimBHk1Fisq69Gx3JtOoXtg1N1tijg==}
     dev: false
 
   /@types/json5@0.0.29:
@@ -813,6 +823,10 @@ packages:
     dependencies:
       esutils: 2.0.3
     dev: true
+
+  /dom-to-image@2.6.0:
+    resolution: {integrity: sha512-Dt0QdaHmLpjURjU7Tnu3AgYSF2LuOmksSGsUcE6ItvJoCWTBEmiMXcqBdNSAm9+QbbwD7JMoVsuuKX6ZVQv1qA==}
+    dev: false
 
   /eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
