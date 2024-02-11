@@ -75,7 +75,7 @@ const UserImageCard = (props: {
   return (
     <div className="relative flex items-center justify-center">
       <div
-        className="absolute rounded-full mix-blend-overlay"
+        className="absolute rounded-full opacity-80"
         style={{
           height: `calc((var(--size) / 100 + .05rem) * ${props.scale} )`,
           width: `calc((var(--size) / 100 + .05rem) * ${props.scale} )`,
@@ -289,7 +289,7 @@ function Page() {
                 <ImageWithFade
                   src={CircleBG}
                   alt="Circle Background"
-                  className="absolute hidden"
+                  className="absolute"
                   height={(size * 3.25) / 4}
                   width={(size * 3.25) / 4}
                 />
@@ -298,13 +298,13 @@ function Page() {
                 {layers.map((layer, layerIndex) => (
                   <div
                     key={layerIndex}
-                    className="absolute rounded-full mix-blend-overlay"
+                    className="absolute rounded-full opacity-60"
                     style={{
-                      height: `calc(var(--size) * ${layerProperties[layerIndex].radius} / 5 - 6px)`,
-                      width: `calc(var(--size) * ${layerProperties[layerIndex].radius} / 5 - 6px)`,
-                      background: "#EDE5FF88",
-                      outline: "6px solid #EDE5FF",
-                      boxShadow: "0px 4px 69.8px 5px rgba(237, 229, 255, 0.20)",
+                      height: `calc(var(--size) * ${layerProperties[layerIndex].radius} / 5 + 6px)`,
+                      width: `calc(var(--size) * ${layerProperties[layerIndex].radius} / 5 + 6px)`,
+                      // background: "#EDE5FF88",
+                      border: "6px solid #EDE5FF",
+                      // boxShadow: "0px 4px 69.8px 5px rgba(237, 229, 255, 0.20)",
                     }}
                   />
                 ))}
