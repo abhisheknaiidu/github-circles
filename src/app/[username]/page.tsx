@@ -5,13 +5,14 @@ import CircleFade from "@/assets/CircleFade.svg";
 import CopyIcon from "@/assets/CopyIcon.svg";
 import DownloadIcon from "@/assets/DownloadIcon.svg";
 import XIcon from "@/assets/XIcon.svg";
-import { useElementSize } from "@/hooks/useElementsSize";
-import Image from "next/image";
-import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import ImageWithFade from "@/components/ImageWithFade";
-import { useParams, useSearchParams, useRouter } from "next/navigation";
-import domtoimage from "dom-to-image";
+import { useElementSize } from "@/hooks/useElementsSize";
+import { cookieSep, userCookieKey } from "@/libs/session";
 import axios from "axios";
+import html2canvas from "html2canvas";
+import Image from "next/image";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { CSSProperties, useEffect, useRef, useState } from "react";
 
 const layerProperties = [
   {
@@ -68,7 +69,7 @@ interface User {
 }
 
 const UserImageCard = (props: {
-  user: { name: string; login: string; avatar_url: string };
+  user: { login: string; avatar_url: string };
   scale: number;
 }) => {
   return (
@@ -91,7 +92,7 @@ const UserImageCard = (props: {
       >
         <ImageWithFade
           src={props.user.avatar_url}
-          alt={props.user.name}
+          alt={props.user.login}
           layout="fill"
         />
       </div>
@@ -100,10 +101,10 @@ const UserImageCard = (props: {
 };
 
 function Page() {
-  const [topFriends, setTopFriends] = useState<User[]>([]);
+  const [circleData, setTopFriends] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const { ref: containerRef, width, height } = useElementSize<HTMLDivElement>();
-  const circleRef = useRef<HTMLButtonElement>(null);
+  const circleRef = useRef<HTMLDivElement>(null);
   const dataFetchedRef = useRef(false);
   const params = useParams();
   const searchParams = useSearchParams();
@@ -111,39 +112,28 @@ function Page() {
   const token = searchParams.get("token");
   const router = useRouter();
 
-  console.log({ topFriends });
-  // use memo to avoid re-rendering
-  const circleData = useMemo(() => {
-    return new Array(25).fill(0).map((_, index) => ({
-      name: "The Octocat",
-      login: "octocat",
-      avatar_url: `https://avatars.githubusercontent.com/u/${Math.floor(
-        Math.random() * 1000000
-      )}?v=4`,
-    }));
-  }, []);
-
   // define layers based on available no of users
   let layers: {
-    name: string;
     login: string;
     avatar_url: string;
   }[][] = [];
 
-  circleData?.forEach((user, index) => {
-    // check for cumulative layers index
-    let layerIndex = 0;
-    for (let i = 0; i < cumulativeLayersCount.length; i++) {
-      if (index < cumulativeLayersCount[i]) {
-        layerIndex = i;
-        break;
+  circleData
+    ?.slice(0, cumulativeLayersCount[cumulativeLayersCount.length - 1])
+    .forEach((user, index) => {
+      // check for cumulative layers index
+      let layerIndex = 0;
+      for (let i = 0; i < cumulativeLayersCount.length; i++) {
+        if (index < cumulativeLayersCount[i]) {
+          layerIndex = i;
+          break;
+        }
       }
-    }
-    if (!layers[layerIndex]) {
-      layers[layerIndex] = [];
-    }
-    layers[layerIndex].push(user);
-  });
+      if (!layers[layerIndex]) {
+        layers[layerIndex] = [];
+      }
+      layers[layerIndex].push(user);
+    });
 
   useEffect(() => {
     async function fetchData() {
@@ -165,7 +155,7 @@ function Page() {
         );
         const followers = followersResponse.data;
         const following = followingResponse.data;
-        debugger;
+
         const followingSet = new Set(
           following.map((user: { login: string }) => user.login)
         );
@@ -226,7 +216,18 @@ function Page() {
           .sort((a, b) => b.score - a.score || b.followers - a.followers)
           .slice(0, 49);
 
-        setTopFriends(usersWithScores);
+        const cookie = decodeURIComponent(
+          document.cookie
+            .split("; ")
+            .find((row) => row.startsWith(userCookieKey + "="))!
+        )
+          ?.split(cookieSep)[0]
+          .split("=")[1];
+
+        const userData = JSON.parse(cookie);
+        userData.avatar_url = `https://avatars.githubusercontent.com/u/${userData.id}?v=4`;
+
+        setTopFriends([userData, ...sortedUsers]);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -240,11 +241,15 @@ function Page() {
 
   const generateImage = async () => {
     if (circleRef.current) {
-      const res = await domtoimage.toBlob(circleRef.current, { quality: 1 });
+      // const res = await domtoimage.toBlob(circleRef.current, { quality: 1 });
+      const canvas = await html2canvas(circleRef.current);
+      const img = canvas.toDataURL("image/png");
+      const a = document.createElement("a");
+      a.href = img;
+      a.download = "github-circle.png";
+      a.click();
     }
   };
-
-  console.log("topFriends", topFriends);
 
   const size = Math.min(width, height);
   return (
@@ -259,7 +264,7 @@ function Page() {
         ref={containerRef}
       >
         {size > 0 &&
-          (circleData ? (
+          (!loading && circleData ? (
             <div
               className="animate-fade relative flex items-center justify-center overflow-hidden rounded-3xl h-[var(--size)] w-[var(--size)]"
               style={
@@ -269,7 +274,10 @@ function Page() {
                 } as CSSProperties
               }
             >
-              <div className="absolute flex items-center justify-center w-full h-full">
+              <div
+                className="absolute flex items-center justify-center w-full h-full"
+                ref={circleRef}
+              >
                 <ImageWithFade
                   src={CircleFade}
                   alt="Circle Fade"
@@ -362,7 +370,6 @@ function Page() {
         <button
           className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
           onClick={generateImage}
-          ref={circleRef}
         >
           <Image src={DownloadIcon} alt="Download" width={20} height={20} />
         </button>
@@ -372,17 +379,6 @@ function Page() {
         <button className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30">
           <Image src={XIcon} alt="Download" width={20} height={20} />
         </button>
-      </div>
-
-      <div>
-        {topFriends.map((friend) => (
-          <div key={friend.login}>
-            <img src={friend.avatar_url} alt={friend.login} />
-            <p>
-              {friend.login} - Score: {friend.score}
-            </p>
-          </div>
-        ))}
       </div>
     </div>
   );

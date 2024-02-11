@@ -22,7 +22,12 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  let token = "";
+  let user: {
+    name: string;
+    login: string;
+    bio: string;
+    id: string;
+  } | null = null;
   let accessToken;
   try {
     const data = await (
@@ -54,7 +59,12 @@ export default async function middleware(req: NextRequest) {
         })
       ).json();
 
-      token = userInfo.login;
+      user = {
+        name: userInfo.name,
+        login: userInfo.login,
+        id: userInfo.id,
+        bio: userInfo.bio,
+      };
     }
   } catch (err: any) {
     console.error(err);
@@ -67,7 +77,7 @@ export default async function middleware(req: NextRequest) {
     );
   }
 
-  if (!token) {
+  if (!user) {
     return NextResponse.json(
       { message: "Github authorization failed" },
       {
@@ -76,18 +86,17 @@ export default async function middleware(req: NextRequest) {
     );
   }
 
-  const user = {
-    name: token,
-  };
-
   const url = req.nextUrl.clone();
   url.searchParams.delete("code");
-  url.pathname = `/${user.name}`;
+  url.pathname = `/${user.login}`;
   url.searchParams.append("token", accessToken);
 
   const res = NextResponse.redirect(url);
 
-  res.cookies.set(userCookieKey, `${user.name}${cookieSep}; Secure; HttpOnly`);
+  res.cookies.set(
+    userCookieKey,
+    `${JSON.stringify(user)}${cookieSep}; Secure;`
+  );
 
   return res;
 }
