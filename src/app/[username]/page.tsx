@@ -7,9 +7,32 @@ import DownloadIcon from "@/assets/DownloadIcon.svg";
 import XIcon from "@/assets/XIcon.svg";
 import { useElementSize } from "@/hooks/useElementsSize";
 import Image from "next/image";
-import { useParams } from "next/navigation";
-import { CSSProperties, useEffect, useRef } from "react";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
+import { CSSProperties, useEffect, useRef, useState } from "react";
 import domtoimage from "dom-to-image";
+import axios from "axios";
+
+interface User {
+  login: string;
+  id: number;
+  node_id: string;
+  avatar_url: string;
+  gravatar_id: string;
+  url: string;
+  html_url: string;
+  followers_url: string;
+  following_url: string;
+  gists_url: string;
+  starred_url: string;
+  subscriptions_url: string;
+  organizations_url: string;
+  repos_url: string;
+  events_url: string;
+  received_events_url: string;
+  type: string;
+  site_admin: boolean;
+  score: number;
+}
 
 const UserImageCard = (props: {
   user: { name: string; login: string; avatar_url: string };
@@ -39,10 +62,109 @@ const UserImageCard = (props: {
 };
 
 function Page() {
-  const params = useParams();
+  const [topFriends, setTopFriends] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
   const { ref: containerRef, width, height } = useElementSize<HTMLDivElement>();
   const circleRef = useRef<HTMLButtonElement>(null);
+  const dataFetchedRef = useRef(false);
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const username = params.username;
+  const token = searchParams.get("token");
+  const router = useRouter();
 
+  if (!router) return null;
+  useEffect(() => {
+    async function fetchData() {
+      if (dataFetchedRef.current) return;
+      dataFetchedRef.current = true;
+      try {
+        const headers = {
+          headers: {
+            Authorization: `bearer ${token}`,
+          },
+        };
+        const followersResponse = await axios.get(
+          `https://api.github.com/users/${username}/followers`,
+          headers
+        );
+        const followingResponse = await axios.get(
+          `https://api.github.com/users/${username}/following`,
+          headers
+        );
+        const followers = followersResponse.data;
+        const following = followingResponse.data;
+        debugger;
+        const followingSet = new Set(
+          following.map((user: { login: string }) => user.login)
+        );
+
+        const prsResponse = await axios.get(
+          `https://api.github.com/search/issues?q=type:pr+author:${username}`,
+          headers
+        );
+        const issuesResponse = await axios.get(
+          `https://api.github.com/search/issues?q=type:issue+author:${username}`,
+          headers
+        );
+        const prs = prsResponse.data.items;
+        const issues = issuesResponse.data.items;
+
+        const starsResponse = await axios.get(
+          `https://api.github.com/users/${username}/starred`,
+          headers
+        );
+        const stars = starsResponse.data;
+
+        const combinedUsers: any = {};
+        following.forEach((user: { login: string }) => {
+          combinedUsers[user.login] = { ...user, score: 1 };
+        });
+        followers.forEach((user: { login: string }) => {
+          if (followingSet.has(user.login)) {
+            combinedUsers[user.login].score += 2;
+          } else {
+            combinedUsers[user.login] = { ...user, score: 1 };
+          }
+        });
+
+        prs.forEach((pr: { user: { login: string } }) => {
+          if (combinedUsers[pr.user.login]) {
+            combinedUsers[pr.user.login].score += 0.5;
+          }
+        });
+        issues.forEach((issue: { user: { login: string } }) => {
+          if (combinedUsers[issue.user.login]) {
+            combinedUsers[issue.user.login].score += 0.5;
+          }
+        });
+        stars.forEach((star: { owner: { login: string } }) => {
+          if (combinedUsers[star.owner.login]) {
+            combinedUsers[star.owner.login].score += 0.5;
+          }
+        });
+
+        const usersWithScores = Object.values(combinedUsers).map(
+          (user: any) => ({
+            ...user,
+            score: Math.min(user.score, user.score > 3 ? 3 : user.score),
+          })
+        );
+
+        const sortedUsers = usersWithScores
+          .sort((a, b) => b.score - a.score || b.followers - a.followers)
+          .slice(0, 49);
+
+        setTopFriends(usersWithScores);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
   const circleData = {
     user: {
       name: "Frank Martin",
@@ -150,6 +272,8 @@ function Page() {
       console.log(res);
     }
   };
+
+  console.log("topFriends", topFriends);
 
   const size = Math.min(width, height);
   return (
@@ -261,6 +385,17 @@ function Page() {
         <button className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30">
           <Image src={XIcon} alt="Download" width={20} height={20} />
         </button>
+      </div>
+
+      <div>
+        {topFriends.map((friend) => (
+          <div key={friend.login}>
+            <img src={friend.avatar_url} alt={friend.login} />
+            <p>
+              {friend.login} - Score: {friend.score}
+            </p>
+          </div>
+        ))}
       </div>
     </div>
   );
