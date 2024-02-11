@@ -14,11 +14,11 @@ function Background() {
       <Image
         className={
           "object-left-top w-full transition-all duration-700" +
-          (pathname === "/" ? " -translate-y-[16vw]" : " -translate-y-[33%]")
+          (pathname === "/" ? " -translate-y-[16vw]" : " -translate-y-[0]")
         }
         style={{
           minHeight:
-            pathname === "/" ? "calc(100% + 16vw)" : "calc(200%)",
+            pathname === "/" ? "calc(100% + 16vw)" : "calc(100%)",
           transitionTimingFunction: "cubic-bezier(.15,.47,.27,.99)",
         }}
         priority

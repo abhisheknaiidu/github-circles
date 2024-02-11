@@ -15,27 +15,27 @@ import ImageWithFade from "@/components/ImageWithFade";
 const layerProperties = [
   {
     count: 1,
-    avatarScale: 12,
+    avatarScale: 14,
     radius: 0,
   },
   {
     count: 8,
     avatarScale: 9,
-    radius: 1.6,
+    radius: 2.2,
   },
   {
-    count: 12,
-    avatarScale: 7,
-    radius: 2.9,
+    count: 16,
+    avatarScale: 6.5,
+    radius: 3.75,
   },
-  {
-    count: 20,
-    avatarScale: 5.5,
-    radius: 4,
-  },
+  // {
+  //   count: 20,
+  //   avatarScale: 5.5,
+  //   radius: 4,
+  // },
 ];
 
-const cumulativeLayersIndex = layerProperties.reduce<number[]>((acc, layer) => {
+const cumulativeLayersCount = layerProperties.reduce<number[]>((acc, layer) => {
   if (acc.length > 0) {
     acc.push(acc[acc.length - 1] + layer.count);
   } else {
@@ -53,8 +53,8 @@ const UserImageCard = (props: {
       <div
         className="absolute rounded-full mix-blend-overlay"
         style={{
-          height: `calc((var(--size) / 100 + .06rem) * ${props.scale} )`,
-          width: `calc((var(--size) / 100 + .06rem) * ${props.scale} )`,
+          height: `calc((var(--size) / 100 + .05rem) * ${props.scale} )`,
+          width: `calc((var(--size) / 100 + .05rem) * ${props.scale} )`,
           background: "#EDE5FF",
         }}
       ></div>
@@ -83,7 +83,7 @@ function Page() {
 
   // use memo to avoid re-rendering
   const circleData = useMemo(() => {
-    return new Array(50).fill(0).map((_, index) => ({
+    return new Array(25).fill(0).map((_, index) => ({
       name: "The Octocat",
       login: "octocat",
       avatar_url: `https://avatars.githubusercontent.com/u/${Math.floor(
@@ -91,6 +91,28 @@ function Page() {
       )}?v=4`,
     }));
   }, []);
+
+  // define layers based on available no of users
+  let layers: {
+    name: string;
+    login: string;
+    avatar_url: string;
+  }[][] = [];
+
+  circleData?.forEach((user, index) => {
+    // check for cumulative layers index
+    let layerIndex = 0;
+    for (let i = 0; i < cumulativeLayersCount.length; i++) {
+      if (index < cumulativeLayersCount[i]) {
+        layerIndex = i;
+        break;
+      }
+    }
+    if (!layers[layerIndex]) {
+      layers[layerIndex] = [];
+    }
+    layers[layerIndex].push(user);
+  });
 
   const generateImage = async () => {
     if (circleRef.current) {
@@ -139,13 +161,13 @@ function Page() {
                 />
 
                 {/* outline divs */}
-                {layerProperties.map((layer, layerIndex) => (
+                {layers.map((layer, layerIndex) => (
                   <div
                     key={layerIndex}
                     className="absolute rounded-full mix-blend-overlay"
                     style={{
-                      height: `calc(var(--size) * ${layer.radius} / 5 - 6px)`,
-                      width: `calc(var(--size) * ${layer.radius} / 5 - 6px)`,
+                      height: `calc(var(--size) * ${layerProperties[layerIndex].radius} / 5 - 6px)`,
+                      width: `calc(var(--size) * ${layerProperties[layerIndex].radius} / 5 - 6px)`,
                       background: "#EDE5FF88",
                       outline: "6px solid #EDE5FF",
                       boxShadow: "0px 4px 69.8px 5px rgba(237, 229, 255, 0.20)",
@@ -154,28 +176,25 @@ function Page() {
                 ))}
 
                 {/* user cards */}
-                {layerProperties.map((layer, layerIndex) => {
-                  return circleData
-                    .slice(
-                      cumulativeLayersIndex[layerIndex - 1],
-                      cumulativeLayersIndex[layerIndex]
-                    )
-                    .map((user, index) => (
-                      <div
-                        key={index}
-                        className="absolute"
-                        style={{
-                          transform: `rotate(${
-                            (360 / layer.count) * index
-                          }deg) translate(0, calc(var(--size) * ${
-                            layer.radius
-                          } / 10)) rotate(${(360 / layer.count) * -index}deg)`,
-                          top: "50%",
-                        }}
-                      >
-                        <UserImageCard user={user} scale={layer.avatarScale} />
-                      </div>
-                    ));
+                {layers.map((users, layerIndex) => {
+                  const layer = layerProperties[layerIndex];
+                  const count = users.length;
+                  return users.map((user, index) => (
+                    <div
+                      key={index}
+                      className="absolute"
+                      style={{
+                        transform: `rotate(${
+                          (360 / count) * index
+                        }deg) translate(0, calc(var(--size) * ${
+                          layer.radius
+                        } / 10)) rotate(${(360 / count) * -index}deg)`,
+                        top: "50%",
+                      }}
+                    >
+                      <UserImageCard user={user} scale={layer.avatarScale} />
+                    </div>
+                  ));
                 })}
               </div>
             </div>
