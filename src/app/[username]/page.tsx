@@ -10,6 +10,7 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import domtoimage from "dom-to-image";
+import ImageWithFade from "@/components/ImageWithFade";
 
 const layerProperties = [
   {
@@ -42,13 +43,11 @@ const cumulativeLayersIndex = layerProperties.reduce<number[]>((acc, layer) => {
   }
   return acc;
 }, []);
-console.log(cumulativeLayersIndex);
 
 const UserImageCard = (props: {
   user: { name: string; login: string; avatar_url: string };
   scale: number;
 }) => {
-  const [loaded, setLoaded] = useState(false);
   return (
     <div className="relative flex items-center justify-center">
       <div
@@ -67,17 +66,10 @@ const UserImageCard = (props: {
           background: "#EDE5FF",
         }}
       >
-        <Image
+        <ImageWithFade
           src={props.user.avatar_url}
           alt={props.user.name}
           layout="fill"
-          className="transition-opacity"
-          style={{
-            opacity: loaded ? 1 : 0,
-          }}
-          onLoad={() => {
-            setLoaded(true);
-          }}
         />
       </div>
     </div>
@@ -102,9 +94,7 @@ function Page() {
 
   const generateImage = async () => {
     if (circleRef.current) {
-      console.log(circleRef.current);
       const res = await domtoimage.toBlob(circleRef.current, { quality: 1 });
-      console.log(res);
     }
   };
 
@@ -132,7 +122,7 @@ function Page() {
               }
             >
               <div className="absolute flex items-center justify-center w-full h-full">
-                <Image
+                <ImageWithFade
                   src={CircleFade}
                   alt="Circle Fade"
                   objectFit="cover"
@@ -140,7 +130,7 @@ function Page() {
                   height={size}
                   width={size}
                 />
-                <Image
+                <ImageWithFade
                   src={CircleBG}
                   alt="Circle Background"
                   className="absolute hidden"
