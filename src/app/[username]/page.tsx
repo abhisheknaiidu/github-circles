@@ -13,6 +13,7 @@ import html2canvas from "html2canvas";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 
 const layerProperties = [
   {
@@ -72,8 +73,11 @@ const UserImageCard = (props: {
   user: { login: string; avatar_url: string };
   scale: number;
 }) => {
+  const searchParams = useSearchParams();
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
-    <div className="relative flex items-center justify-center">
+    <div className={"relative flex items-center justify-center bg-white"}>
       <div
         className="absolute rounded-full opacity-80"
         style={{
@@ -82,20 +86,40 @@ const UserImageCard = (props: {
           background: "#EDE5FF",
         }}
       ></div>
-      <div
-        className="absolute overflow-hidden bg-white rounded-full"
+      <Link
+        href={{
+          pathname: `/${props.user.login}`,
+          query: {
+            token: searchParams.get("token"),
+          },
+        }}
+        className="absolute overflow-hidden transition-all bg-white rounded-full cursor-pointer hover:opacity-80"
         style={{
           height: `calc(var(--size) * ${props.scale} / 100 )`,
           width: `calc(var(--size) * ${props.scale} / 100 )`,
           background: "#EDE5FF",
         }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         <ImageWithFade
           src={props.user.avatar_url}
           alt={props.user.login}
           layout="fill"
         />
-      </div>
+      </Link>
+      {isHovered && (
+        <div
+          className={
+            "absolute flex flex-col items-center break-words w-max animate-fade text-sm duration-75 bg-white bg-opacity-10 rounded-full p-0.5 px-2 z-10"
+          }
+          style={{
+            top: `calc(var(--size) * ${props.scale} / 200 + .7rem)`,
+          }}
+        >
+          <p>{props.user.login}</p>
+        </div>
+      )}
     </div>
   );
 };
