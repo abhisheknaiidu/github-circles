@@ -22,12 +22,12 @@ const layerProperties = [
   },
   {
     count: 8,
-    avatarScale: 9,
+    avatarScale: 10,
     radius: 2.2,
   },
   {
     count: 16,
-    avatarScale: 6.5,
+    avatarScale: 8,
     radius: 3.75,
   },
   // {
@@ -103,6 +103,7 @@ const UserImageCard = (props: {
 function Page() {
   const [circleData, setTopFriends] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const { ref: containerRef, width, height } = useElementSize<HTMLDivElement>();
   const circleRef = useRef<HTMLDivElement>(null);
   const dataFetchedRef = useRef(false);
@@ -252,6 +253,7 @@ function Page() {
       } catch (error) {
         console.error("Error fetching data:", error);
         setLoading(false);
+        setError(true);
       }
     }
 
@@ -302,74 +304,93 @@ function Page() {
         ref={containerRef}
       >
         {size > 0 &&
-          (!loading && circleData ? (
-            <div
-              className="animate-fade relative flex items-center justify-center overflow-hidden rounded-3xl h-[var(--size)] w-[var(--size)]"
-              style={
-                {
-                  "--size": size + "px",
-                  boxShadow: "0px 4px 200px 0px rgba(200, 179, 250, 0.20)",
-                } as CSSProperties
-              }
-            >
-              <div
-                className="absolute flex items-center justify-center w-full h-full"
-                ref={circleRef}
-              >
-                <ImageWithFade
-                  src={CircleFade}
-                  alt="Circle Fade"
-                  objectFit="cover"
-                  className="absolute"
-                  height={size}
-                  width={size}
-                />
-                <ImageWithFade
-                  src={CircleBG}
-                  alt="Circle Background"
-                  className="absolute"
-                  height={(size * 3.25) / 4}
-                  width={(size * 3.25) / 4}
-                />
-
-                {/* outline divs */}
-                {layers.map((layer, layerIndex) => (
+          (!loading ? (
+            <>
+              {circleData && !error && circleData.length != 0 ? (
+                <div
+                  className="animate-fade relative flex items-center justify-center overflow-hidden rounded-3xl h-[var(--size)] w-[var(--size)]"
+                  style={
+                    {
+                      "--size": size + "px",
+                      boxShadow: "0px 4px 200px 0px rgba(200, 179, 250, 0.20)",
+                    } as CSSProperties
+                  }
+                >
                   <div
-                    key={layerIndex}
-                    className="absolute rounded-full opacity-60"
-                    style={{
-                      height: `calc(var(--size) * ${layerProperties[layerIndex].radius} / 5 + 6px)`,
-                      width: `calc(var(--size) * ${layerProperties[layerIndex].radius} / 5 + 6px)`,
-                      // background: "#EDE5FF88",
-                      border: "6px solid #EDE5FF",
-                      // boxShadow: "0px 4px 69.8px 5px rgba(237, 229, 255, 0.20)",
-                    }}
-                  />
-                ))}
-
-                {/* user cards */}
-                {layers.map((users, layerIndex) => {
-                  const layer = layerProperties[layerIndex];
-                  const count = users.length;
-                  return users.map((user, index) => (
-                    <div
-                      key={index}
+                    className="absolute flex items-center justify-center w-full h-full"
+                    ref={circleRef}
+                  >
+                    <ImageWithFade
+                      src={CircleFade}
+                      alt="Circle Fade"
+                      objectFit="cover"
                       className="absolute"
-                      style={{
-                        transform: `rotate(${
-                          (360 / count) * index
-                        }deg) translate(0, calc(var(--size) * ${
-                          layer.radius
-                        } / 10)) rotate(${(360 / count) * -index}deg)`,
-                        top: "50%",
-                      }}
-                    >
-                      <UserImageCard user={user} scale={layer.avatarScale} />
-                    </div>
-                  ));
-                })}
-              </div>
-            </div>
+                      height={size}
+                      width={size}
+                    />
+                    <ImageWithFade
+                      src={CircleBG}
+                      alt="Circle Background"
+                      className="absolute"
+                      height={(size * 3.25) / 4}
+                      width={(size * 3.25) / 4}
+                    />
+
+                    {/* outline divs */}
+                    {layers.map((layer, layerIndex) => (
+                      <div
+                        key={layerIndex}
+                        className="absolute rounded-full opacity-60"
+                        style={{
+                          height: `calc(var(--size) * ${layerProperties[layerIndex].radius} / 5 + 6px)`,
+                          width: `calc(var(--size) * ${layerProperties[layerIndex].radius} / 5 + 6px)`,
+                          // background: "#EDE5FF88",
+                          border: "6px solid #EDE5FF",
+                          // boxShadow: "0px 4px 69.8px 5px rgba(237, 229, 255, 0.20)",
+                        }}
+                      />
+                    ))}
+
+                    {/* user cards */}
+                    {layers.map((users, layerIndex) => {
+                      const layer = layerProperties[layerIndex];
+                      const count = users.length;
+                      return users.map((user, index) => (
+                        <div
+                          key={index}
+                          className="absolute"
+                          style={{
+                            transform: `rotate(${
+                              (360 / count) * index
+                            }deg) translate(0, calc(var(--size) * ${
+                              layer.radius
+                            } / 10)) rotate(${(360 / count) * -index}deg)`,
+                            top: "50%",
+                          }}
+                        >
+                          <UserImageCard
+                            user={user}
+                            scale={layer.avatarScale}
+                          />
+                        </div>
+                      ));
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className="relative flex items-center justify-center p-4 px-6 overflow-hidden animate-fade rounded-3xl"
+                  style={
+                    {
+                      "--size": size + "px",
+                      boxShadow: "0px 4px 200px 0px rgba(200, 179, 250, 0.40)",
+                    } as CSSProperties
+                  }
+                >
+                  Something went wrong, please try again later
+                </div>
+              )}
+            </>
           ) : (
             <div className="relative flex items-center justify-center">
               <div className="opacity-20">
