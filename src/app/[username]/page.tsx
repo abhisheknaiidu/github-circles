@@ -288,7 +288,9 @@ function Page() {
   const generateImage = async () => {
     if (circleRef.current) {
       // const res = await domtoimage.toBlob(circleRef.current, { quality: 1 });
-      const canvas = await html2canvas(circleRef.current);
+      const canvas = await html2canvas(circleRef.current, {
+        scale: 2,
+      });
       const img = canvas.toDataURL("image/png");
       const a = document.createElement("a");
       a.href = img;
@@ -299,9 +301,14 @@ function Page() {
 
   const copyImage = async () => {
     if (circleRef.current) {
-      const canvas = await html2canvas(circleRef.current);
-      const img = canvas.toDataURL("image/png");
-      navigator.clipboard.writeText(img);
+      const canvas = await html2canvas(circleRef.current, {
+        scale: 2,
+      });
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const item = new ClipboardItem({ "image/png": blob });
+        await navigator.clipboard.write([item]);
+      });
     }
   };
 
@@ -462,12 +469,12 @@ function Page() {
         >
           <Image src={CopyIcon} alt="Download" width={20} height={20} />
         </button>
-        <button
+        {/* <button
           className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
           onClick={shareToTwitter}
         >
           <Image src={XIcon} alt="Download" width={20} height={20} />
-        </button>
+        </button> */}
       </div>
     </div>
   );
