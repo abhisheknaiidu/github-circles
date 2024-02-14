@@ -1,25 +1,26 @@
 "use client";
 
-import Image from "next/image";
+// import Image from "next/image";
 import React, { useState } from "react";
 
-function ImageWithFade(props: React.ComponentProps<typeof Image>) {
+function ImageWithFade(props: React.ComponentProps<any>) {
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <Image
+    <img
       {...props}
-      onLoad={(event) => {
-        setLoaded(true);
-        if (props.onLoad) {
-          props.onLoad(event);
-        }
-      }}
-      className={
-        `transition-opacity duration-300 ease-out ${
-          loaded ? "opacity-100" : "opacity-0"
-        }` + (props.className ? ` ${props.className}` : "")
-      }
+      src={props.src}
+      // onLoad={(event) => {
+      //   setLoaded(true);
+      //   if (props.onLoad) {
+      //     props.onLoad(event);
+      //   }
+      // }}
+      // className={
+      //   `transition-opacity duration-300 ease-out ${
+      //     loaded ? "opacity-100" : "opacity-0"
+      //   }` + (props.className ? ` ${props.className}` : "")
+      // }
       alt={props.alt}
     />
   );
