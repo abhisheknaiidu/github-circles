@@ -4,15 +4,20 @@ import CircleBG from "@/assets/CircleBG.png";
 import CircleFade from "@/assets/CircleFade.svg";
 import CopyIcon from "@/assets/CopyIcon.svg";
 import DownloadIcon from "@/assets/DownloadIcon.svg";
+import VanillaTilt from "vanilla-tilt";
 import XIcon from "@/assets/XIcon.svg";
 import ImageWithFade from "@/components/ImageWithFade";
 import { useElementSize } from "@/hooks/useElementsSize";
 import { cookieSep, userCookieKey } from "@/libs/session";
 import axios from "axios";
 import html2canvas from "html2canvas";
-import Image from "next/image";
+// import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
+import { colord, extend } from "colord";
+import harmoniesPlugin from "colord/plugins/harmonies";
+import mixPlugin from "colord/plugins/mix";
+import domtoimage from "dom-to-image";
 
 const layerProperties = [
   {
@@ -66,6 +71,7 @@ interface User {
   type: string;
   site_admin: boolean;
   score: number;
+  owner: User;
 }
 
 const UserImageCard = (props: {
@@ -110,6 +116,56 @@ function Page() {
   const searchParams = useSearchParams();
   const username = params.username;
   const token = searchParams.get("token");
+  const tiltRef = useRef<HTMLDivElement>(null);
+  const [bgColor, setBgColor] = useState("");
+
+  const divRef = useRef(null);
+
+  const convertToImage = () => {
+    const node = divRef.current;
+
+    domtoimage
+      .toPng(node)
+      .then((dataUrl) => {
+        // Create a new image element
+        const img = new Image();
+        img.src = dataUrl;
+
+        // Append the image to the document, or handle it as needed
+        document.body.appendChild(img);
+      })
+      .catch((error) => {
+        console.error("Error converting div to image:", error);
+      });
+  };
+  extend([harmoniesPlugin]);
+  extend([mixPlugin]);
+  useEffect(() => {
+    if (circleRef.current) {
+      domtoimage
+        .toPng(circleRef.current, { quality: 1 })
+        .then((dataUrl) => {
+          var img = new Image();
+          img.src = dataUrl;
+
+          document.body.appendChild(img);
+        })
+        .catch(function (error) {
+          console.error("oops, something went wrong!", error);
+        });
+    }
+    VanillaTilt.init(tiltRef.current!, {
+      easing: "cubic-bezier(.17,.67,.83,.67)",
+      glare: true,
+      "glare-prerender": false,
+      max: 10,
+      "max-glare": 0.5,
+      reset: true,
+      scale: 1.1,
+      speed: 300,
+      transition: true,
+    });
+  }, [circleRef]);
 
   // define layers based on available no of users
   const layers = useMemo(() => {
@@ -136,6 +192,26 @@ function Page() {
     return layers;
   }, [circleData]);
 
+  const seededRandom = (seed: number) => {
+    return function () {
+      // A simple LCG algorithm parameters
+      const a = 1664525;
+      const c = 1013904223;
+      const m = 4294967296; // 2^32
+      seed = (a * seed + c) % m;
+      return seed / m;
+    };
+  };
+
+  const shuffleArray = (array: any) => {
+    const random = seededRandom(123456);
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  };
+
   useEffect(() => {
     async function fetchData() {
       if (dataFetchedRef.current) return;
@@ -158,27 +234,18 @@ function Page() {
         );
         const followers = followersResponse.data;
         const following = followingResponse.data;
-
         const followingSet = new Set(
           following.map((user: { login: string }) => user.login)
         );
-
-        const prsResponse = await axios.get(
-          `https://api.github.com/search/issues?q=type:pr+author:${username}`,
-          headers
-        );
-        const issuesResponse = await axios.get(
-          `https://api.github.com/search/issues?q=type:issue+author:${username}`,
-          headers
-        );
-        const prs = prsResponse.data.items;
-        const issues = issuesResponse.data.items;
 
         const starsResponse = await axios.get(
           `https://api.github.com/users/${username}/starred`,
           headers
         );
-        const stars = starsResponse.data;
+
+        const stars = starsResponse.data
+          ?.map((user: User) => user.owner)
+          ?.slice(0, 12);
 
         const combinedUsers: any = {};
         following.forEach((user: { login: string }) => {
@@ -192,22 +259,6 @@ function Page() {
           }
         });
 
-        prs.forEach((pr: { user: { login: string } }) => {
-          if (combinedUsers[pr.user.login]) {
-            combinedUsers[pr.user.login].score += 0.5;
-          }
-        });
-        issues.forEach((issue: { user: { login: string } }) => {
-          if (combinedUsers[issue.user.login]) {
-            combinedUsers[issue.user.login].score += 0.5;
-          }
-        });
-        stars.forEach((star: { owner: { login: string } }) => {
-          if (combinedUsers[star.owner.login]) {
-            combinedUsers[star.owner.login].score += 0.5;
-          }
-        });
-
         const usersWithScores = Object.values(combinedUsers).map(
           (user: any) => ({
             ...user,
@@ -215,10 +266,11 @@ function Page() {
           })
         );
 
-        const sortedUsers = usersWithScores
-          .sort((a, b) => b.score - a.score || b.followers - a.followers)
-          .slice(0, 49);
+        const sortedUsers = usersWithScores.sort(
+          (a, b) => b.score - a.score || b.followers - a.followers
+        );
 
+        const combinedNewUsers = sortedUsers?.slice(0, 12);
         const cookie = decodeURIComponent(
           document.cookie
             .split("; ")
@@ -247,7 +299,12 @@ function Page() {
           };
         }
 
-        setTopFriends([userData, ...sortedUsers]);
+        const finalUsers = [
+          ...shuffleArray(combinedNewUsers),
+          ...shuffleArray(stars),
+        ].slice(0, 24);
+
+        setTopFriends([userData, ...finalUsers]);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -261,13 +318,23 @@ function Page() {
 
   const generateImage = async () => {
     if (circleRef.current) {
-      // const res = await domtoimage.toBlob(circleRef.current, { quality: 1 });
-      const canvas = await html2canvas(circleRef.current);
-      const img = canvas.toDataURL("image/png");
-      const a = document.createElement("a");
-      a.href = img;
-      a.download = "github-circle.png";
-      a.click();
+      // // const res = await domtoimage.toBlob(circleRef.current, { quality: 1 });
+      // const canvas = await html2canvas(circleRef.current);
+      // const img = canvas.toDataURL("image/png");
+      // const a = document.createElement("a");
+      // a.href = img;
+      // a.download = "github-circle.png";
+      // a.click();
+      if (circleRef.current) {
+        domtoimage
+          .toPng(circleRef.current, { quality: 0.95 })
+          .then(function (dataUrl) {
+            var link = document.createElement("a");
+            link.download = "my-image-name.jpeg";
+            link.href = dataUrl;
+            link.click();
+          });
+      }
     }
   };
 
@@ -284,10 +351,42 @@ function Page() {
       const canvas = await html2canvas(circleRef.current);
       const img = canvas.toDataURL("image/png");
       // https://twitter.com/intent/tweet/?text=&url=https%3A%2F%2Fcred.club%2Farticles%2Fbanking-is-now-open
-      const url = `https://twitter.com/intent/tweet?text=Check out my GitHub Circle www.github-circle.xyz&url=${img}`;
+      const url = `https://twitter.com/intent/tweet?text=Check`;
       window.open(url, "_blank");
     }
   };
+
+  useEffect(() => {
+    const [e, a] = colord(bgColor).harmonies("double-split-complementary");
+    const o = [e, a].map((i) => {
+      const l = i.shades(9),
+        b = i.tints(3);
+      return [l[2], b[1], l[4]].map((q) => q.toRgbString());
+    });
+
+    console.log(o);
+    const generatedColors = {
+      alphaVersion: e.alpha(0.5).toRgbString(),
+      baseColor: bgColor,
+      baseWithAlpha: colord(bgColor).alpha(0.8).toRgbString(),
+      harmony1: o[0],
+      harmony2: o[1],
+    };
+
+    console.log(tiltRef);
+
+    // [e,a] = c(r).harmonies("double-split-complementary")
+    // , o = [e, a].map(i=>{
+    //   const l = i.shades(9)
+    //     , b = i.tints(3);
+    //   return [l[2], b[1], l[4]].map(q=>q.toRgbString())
+
+    // tiltRef.current.style.setProperty(
+    //   "--highlight",
+    //   generatedColors.harmony2[2]
+    // );
+    // tiltRef.current.style.setProperty("--text", generatedColors.harmony2[2]);
+  }, [bgColor]);
 
   const size = Math.min(width, height);
   return (
@@ -301,128 +400,140 @@ function Page() {
         className="flex items-center justify-center w-full h-full"
         ref={containerRef}
       >
-        {size > 0 &&
-          (!loading && circleData ? (
-            <div
-              className="animate-fade relative flex items-center justify-center overflow-hidden rounded-3xl h-[var(--size)] w-[var(--size)]"
-              style={
-                {
-                  "--size": size + "px",
-                  boxShadow: "0px 4px 200px 0px rgba(200, 179, 250, 0.20)",
-                } as CSSProperties
-              }
-            >
+        <div
+          className="flex items-center justify-center overflow-hidden rounded-3xl h-[var(--size)] w-[var(--size)]"
+          ref={tiltRef}
+          style={{
+            "--background": bgColor,
+            "--centerGradient":
+              "rgb(42, 159, 109),rgb(169, 238, 201),rgb(36, 103, 72)",
+          }}
+        >
+          {size > 0 &&
+            (!loading && circleData ? (
               <div
-                className="absolute flex items-center justify-center w-full h-full"
-                ref={circleRef}
-              >
-                <ImageWithFade
-                  src={CircleFade}
-                  alt="Circle Fade"
-                  objectFit="cover"
-                  className="absolute"
-                  height={size}
-                  width={size}
-                />
-                <ImageWithFade
-                  src={CircleBG}
-                  alt="Circle Background"
-                  className="absolute"
-                  height={(size * 3.25) / 4}
-                  width={(size * 3.25) / 4}
-                />
+                className="animate-fade relative flex items-center justify-center overflow-hidden rounded-3xl h-[var(--size)] w-[var(--size)]"
+                ref={tiltRef}
+                style={
+                  {
+                    "--size": size + "px",
+                    background:
+                      "radial-gradient(73.53% 52.65% at 50% 51.96%,var(--centerGradient) 0,rgba(87,205,255,0) 100%) var(--background)",
+                    border: `1px solid var(--background)}`,
 
-                {/* outline divs */}
-                {layers.map((layer, layerIndex) => (
+                    boxShadow: "0px 4px 200px 0px rgba(200, 179, 250, 0.20)",
+                  } as CSSProperties
+                }
+              >
+                <div
+                  className="absolute flex items-center justify-center w-full h-full"
+                  ref={circleRef}
+                >
+                  {/* outline divs */}
+                  {layers.map((layer, layerIndex) => (
+                    <div
+                      key={layerIndex}
+                      className="absolute rounded-full opacity-60"
+                      style={{
+                        height: `calc(var(--size) * ${layerProperties[layerIndex].radius} / 5 + 6px)`,
+                        width: `calc(var(--size) * ${layerProperties[layerIndex].radius} / 5 + 6px)`,
+                        border: "6px solid #fff",
+                      }}
+                    />
+                  ))}
+
+                  {/* user cards */}
+                  {layers.map((users, layerIndex) => {
+                    const layer = layerProperties[layerIndex];
+                    const count = users.length;
+                    return users.map((user, index) => (
+                      <div
+                        key={index}
+                        className="absolute"
+                        style={{
+                          transform: `rotate(${
+                            (360 / count) * index
+                          }deg) translate(0, calc(var(--size) * ${
+                            layer.radius
+                          } / 10)) rotate(${(360 / count) * -index}deg)`,
+                          top: "50%",
+                        }}
+                      >
+                        <UserImageCard user={user} scale={layer.avatarScale} />
+                      </div>
+                    ));
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="relative flex items-center justify-center">
+                <div className="opacity-20">
                   <div
-                    key={layerIndex}
-                    className="absolute rounded-full opacity-60"
+                    className="bg-black rounded-full animate-pulse bg-blend-overlay"
                     style={{
-                      height: `calc(var(--size) * ${layerProperties[layerIndex].radius} / 5 + 6px)`,
-                      width: `calc(var(--size) * ${layerProperties[layerIndex].radius} / 5 + 6px)`,
-                      // background: "#EDE5FF88",
-                      border: "6px solid #EDE5FF",
-                      // boxShadow: "0px 4px 69.8px 5px rgba(237, 229, 255, 0.20)",
+                      height: size + "px",
+                      width: size + "px",
+                    }}
+                  ></div>
+                </div>
+                <div className="absolute opacity-20">
+                  <div
+                    className="bg-black rounded-full animate-pulse bg-blend-overlay"
+                    style={{
+                      animationDelay: ".5s",
+                      height: size / 1.3 + "px",
+                      width: size / 1.3 + "px",
                     }}
                   />
-                ))}
-
-                {/* user cards */}
-                {layers.map((users, layerIndex) => {
-                  const layer = layerProperties[layerIndex];
-                  const count = users.length;
-                  return users.map((user, index) => (
-                    <div
-                      key={index}
-                      className="absolute"
-                      style={{
-                        transform: `rotate(${
-                          (360 / count) * index
-                        }deg) translate(0, calc(var(--size) * ${
-                          layer.radius
-                        } / 10)) rotate(${(360 / count) * -index}deg)`,
-                        top: "50%",
-                      }}
-                    >
-                      <UserImageCard user={user} scale={layer.avatarScale} />
-                    </div>
-                  ));
-                })}
+                </div>
+                <div className="absolute opacity-20">
+                  <div
+                    className="bg-black rounded-full animate-pulse bg-blend-overlay"
+                    style={{
+                      animationDelay: ".7s",
+                      height: size / 2 + "px",
+                      width: size / 2 + "px",
+                    }}
+                  />
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="relative flex items-center justify-center">
-              <div className="opacity-20">
-                <div
-                  className="bg-black rounded-full animate-pulse bg-blend-overlay"
-                  style={{
-                    height: size + "px",
-                    width: size + "px",
-                  }}
-                ></div>
-              </div>
-              <div className="absolute opacity-20">
-                <div
-                  className="bg-black rounded-full animate-pulse bg-blend-overlay"
-                  style={{
-                    animationDelay: ".5s",
-                    height: size / 1.3 + "px",
-                    width: size / 1.3 + "px",
-                  }}
-                />
-              </div>
-              <div className="absolute opacity-20">
-                <div
-                  className="bg-black rounded-full animate-pulse bg-blend-overlay"
-                  style={{
-                    animationDelay: ".7s",
-                    height: size / 2 + "px",
-                    width: size / 2 + "px",
-                  }}
-                />
-              </div>
-            </div>
-          ))}
+            ))}
+        </div>
       </div>
       <div className="flex items-center justify-center w-full gap-4 animate-fade">
         <button
           className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
           onClick={generateImage}
         >
-          <Image src={DownloadIcon} alt="Download" width={20} height={20} />
+          <img src={DownloadIcon} alt="Download" width={20} height={20} />
         </button>
         <button
           className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
           onClick={copyImage}
         >
-          <Image src={CopyIcon} alt="Download" width={20} height={20} />
+          <img src={CopyIcon} alt="Download" width={20} height={20} />
         </button>
         <button
           className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
           onClick={shareToTwitter}
         >
-          <Image src={XIcon} alt="Download" width={20} height={20} />
+          <img src={XIcon} alt="Download" width={20} height={20} />
         </button>
+        <input type="color" onChange={(e) => setBgColor(e.target.value)} />
+      </div>
+
+      <div>
+        <div
+          ref={divRef}
+          style={{
+            border: "1px solid #000",
+            padding: "20px",
+            margin: "20px 0",
+          }}
+        >
+          This div will be converted to an image.
+        </div>
+        <button onClick={convertToImage}>Convert to Image</button>
       </div>
     </div>
   );
