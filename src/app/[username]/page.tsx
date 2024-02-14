@@ -10,7 +10,6 @@ import ImageWithFade from "@/components/ImageWithFade";
 import { useElementSize } from "@/hooks/useElementsSize";
 import { cookieSep, userCookieKey } from "@/libs/session";
 import axios from "axios";
-import html2canvas from "html2canvas";
 // import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
@@ -19,6 +18,7 @@ import harmoniesPlugin from "colord/plugins/harmonies";
 import mixPlugin from "colord/plugins/mix";
 import domtoimage from "dom-to-image";
 import Link from "next/link";
+import NextImage from "next/image";
 
 const layerProperties = [
   {
@@ -83,13 +83,14 @@ const UserImageCard = (props: {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className={"relative flex items-center justify-center bg-white"}>
+    <div className={"relative flex items-center justify-center"}>
       <div
-        className="absolute rounded-full opacity-80"
+        className="absolute bg-opacity-100 rounded-full"
         style={{
           height: `calc((var(--size) / 100 + .05rem) * ${props.scale} )`,
           width: `calc((var(--size) / 100 + .05rem) * ${props.scale} )`,
           background: "#EDE5FF",
+          mixBlendMode: "overlay",
         }}
       ></div>
       <Link
@@ -111,7 +112,10 @@ const UserImageCard = (props: {
         <ImageWithFade
           src={props.user.avatar_url}
           alt={props.user.login}
-          layout="fill"
+          style={{
+            height: `calc(var(--size) * ${props.scale} / 100 )`,
+            width: `calc(var(--size) * ${props.scale} / 100 )`,
+          }}
         />
       </Link>
       {isHovered && (
@@ -325,82 +329,25 @@ function Page() {
 
   const generateImage = async () => {
     if (circleRef.current) {
-      // // const res = await domtoimage.toBlob(circleRef.current, { quality: 1 });
-      // const canvas = await html2canvas(circleRef.current);
-      // const img = canvas.toDataURL("image/png");
-      // const a = document.createElement("a");
-      // a.href = img;
-      // a.download = "github-circle.png";
-      // a.click();
-      if (circleRef.current) {
-        domtoimage
-          .toPng(circleRef.current, { quality: 0.95 })
-          .then(function (dataUrl) {
-            var link = document.createElement("a");
-            link.download = "my-image-name.jpeg";
-            link.href = dataUrl;
-            link.click();
-          });
-      }
+      const dataUrl = await domtoimage.toPng(circleRef.current, {
+        quality: 2,
+      });
+      var link = document.createElement("a");
+      link.download = "github-circle.png";
+      link.href = dataUrl;
+      link.click();
     }
   };
 
   const copyImage = async () => {
     if (circleRef.current) {
-      const canvas = await html2canvas(circleRef.current, {
-        scale: 2,
-      });
-      canvas.toBlob(async (blob) => {
-        if (!blob) return;
-        const item = new ClipboardItem({ "image/png": blob });
-        await navigator.clipboard.write([item]);
-      });
+      const blob = await domtoimage.toBlob(circleRef.current, { quality: 2 });
+      const item = new ClipboardItem({ "image/png": blob });
+      navigator.clipboard.write([item]);
     }
   };
 
-  const shareToTwitter = async () => {
-    if (circleRef.current) {
-      const canvas = await html2canvas(circleRef.current);
-      const img = canvas.toDataURL("image/png");
-      // https://twitter.com/intent/tweet/?text=&url=https%3A%2F%2Fcred.club%2Farticles%2Fbanking-is-now-open
-      const url = `https://twitter.com/intent/tweet?text=Check`;
-      window.open(url, "_blank");
-    }
-  };
-
-  useEffect(() => {
-    const [e, a] = colord(bgColor).harmonies("double-split-complementary");
-    const o = [e, a].map((i) => {
-      const l = i.shades(9),
-        b = i.tints(3);
-      return [l[2], b[1], l[4]].map((q) => q.toRgbString());
-    });
-
-    console.log(o);
-    const generatedColors = {
-      alphaVersion: e.alpha(0.5).toRgbString(),
-      baseColor: bgColor,
-      baseWithAlpha: colord(bgColor).alpha(0.8).toRgbString(),
-      harmony1: o[0],
-      harmony2: o[1],
-    };
-
-    console.log(tiltRef);
-
-    // [e,a] = c(r).harmonies("double-split-complementary")
-    // , o = [e, a].map(i=>{
-    //   const l = i.shades(9)
-    //     , b = i.tints(3);
-    //   return [l[2], b[1], l[4]].map(q=>q.toRgbString())
-
-    // tiltRef.current.style.setProperty(
-    //   "--highlight",
-    //   generatedColors.harmony2[2]
-    // );
-    // tiltRef.current.style.setProperty("--text", generatedColors.harmony2[2]);
-  }, [bgColor]);
-
-  const size = Math.min(width, height);
+  const size = Math.min(width, height) ? Math.min(width, height) - 20 : 0;
   return (
     <div
       className="grid items-center w-full h-full gap-6 px-4 pt-4"
@@ -415,68 +362,113 @@ function Page() {
         <div
           className="flex items-center justify-center overflow-hidden rounded-3xl h-[var(--size)] w-[var(--size)]"
           ref={tiltRef}
-          style={{
-            "--background": bgColor,
-            "--centerGradient":
-              "rgb(42, 159, 109),rgb(169, 238, 201),rgb(36, 103, 72)",
-          }}
+          style={
+            {
+              "--background": bgColor,
+              "--centerGradient":
+                "rgb(42, 159, 109),rgb(169, 238, 201),rgb(36, 103, 72)",
+            } as CSSProperties
+          }
         >
           {size > 0 &&
-            (!loading && circleData ? (
-              <div
-                className="animate-fade relative flex items-center justify-center overflow-hidden rounded-3xl h-[var(--size)] w-[var(--size)]"
-                ref={tiltRef}
-                style={
-                  {
-                    "--size": size + "px",
-                    background:
-                      "radial-gradient(73.53% 52.65% at 50% 51.96%,var(--centerGradient) 0,rgba(87,205,255,0) 100%) var(--background)",
-                    border: `1px solid var(--background)}`,
-
-                    boxShadow: "0px 4px 200px 0px rgba(200, 179, 250, 0.20)",
-                  } as CSSProperties
-                }
-              >
-                <div
-                  className="absolute flex items-center justify-center w-full h-full"
-                  ref={circleRef}
-                >
-                  {/* outline divs */}
-                  {layers.map((layer, layerIndex) => (
+            (!loading ? (
+              <>
+                {circleData && !error && circleData.length != 0 ? (
+                  <div
+                    className="animate-fade relative flex items-center justify-center overflow-hidden rounded-3xl h-[var(--size)] w-[var(--size)]"
+                    ref={tiltRef}
+                    style={
+                      {
+                        "--size": size + "px",
+                        background:
+                          "radial-gradient(73.53% 52.65% at 50% 51.96%,var(--centerGradient) 0,rgba(87,205,255,0) 100%) var(--background)",
+                        border: `1px solid var(--background)}`,
+                        boxShadow:
+                          "0px 4px 200px 0px rgba(200, 179, 250, 0.20)",
+                      } as CSSProperties
+                    }
+                  >
                     <div
-                      key={layerIndex}
-                      className="absolute rounded-full opacity-60"
-                      style={{
-                        height: `calc(var(--size) * ${layerProperties[layerIndex].radius} / 5 + 6px)`,
-                        width: `calc(var(--size) * ${layerProperties[layerIndex].radius} / 5 + 6px)`,
-                        border: "6px solid #fff",
-                      }}
-                    />
-                  ))}
+                      className="absolute flex items-center justify-center w-full h-full"
+                      ref={circleRef}
+                    >
+                      {!bgColor && (
+                        <>
+                          <ImageWithFade
+                            src={"CircleFade.svg"}
+                            alt="Circle Fade"
+                            className="absolute"
+                            height={size}
+                            width={size}
+                            style={{
+                              filter: "contrast(1.1) brightness(1)",
+                            }}
+                          />
+                          <ImageWithFade
+                            src={"CircleBG.png"}
+                            alt="Circle Background"
+                            className="absolute opacity-50 blur-md"
+                            height={(size * 3.25) / 4}
+                            width={(size * 3.25) / 4}
+                            style={
+                              {
+                                // filter: "contrast(1.5) brightness(1)",
+                              }
+                            }
+                          />
+                        </>
+                      )}
 
-                  {/* user cards */}
-                  {layers.map((users, layerIndex) => {
-                    const layer = layerProperties[layerIndex];
-                    const count = users.length;
-                    return users.map((user, index) => (
-                      <div
-                        key={index}
-                        className="absolute"
-                        style={{
-                          transform: `rotate(${
-                            (360 / count) * index
-                          }deg) translate(0, calc(var(--size) * ${
-                            layer.radius
-                          } / 10)) rotate(${(360 / count) * -index}deg)`,
-                          top: "50%",
-                        }}
-                      >
-                        <UserImageCard user={user} scale={layer.avatarScale} />
-                      </div>
-                    ));
-                  })}
-                </div>
-              </div>
+                      {/* outline divs */}
+                      {layers.map((layer, layerIndex) => (
+                        <div
+                          key={layerIndex}
+                          className="absolute bg-white rounded-full bg-opacity-60 mix-blend-overlay opacity-60"
+                          style={{
+                            height: `calc(var(--size) * ${layerProperties[layerIndex].radius} / 5 + 6px)`,
+                            width: `calc(var(--size) * ${layerProperties[layerIndex].radius} / 5 + 6px)`,
+                            border: "6px solid #fff",
+                          }}
+                        />
+                      ))}
+
+                      {/* user cards */}
+                      {layers.map((users, layerIndex) => {
+                        const layer = layerProperties[layerIndex];
+                        const count = users.length;
+                        return users.map((user, index) => (
+                          <div
+                            key={index}
+                            className="absolute"
+                            style={{
+                              transform: `rotate(${
+                                (360 / count) * index
+                              }deg) translate(0, calc(var(--size) * ${
+                                layer.radius
+                              } / 10)) rotate(${(360 / count) * -index}deg)`,
+                              top: "50%",
+                            }}
+                          >
+                            <UserImageCard
+                              user={user}
+                              scale={layer.avatarScale}
+                            />
+                          </div>
+                        ));
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    className="relative flex items-center justify-center p-3 px-6 overflow-hidden bg-black shadow-2xl animate-fade rounded-3xl bg-opacity-15"
+                    style={{
+                      boxShadow: "0px 4px 200px 0px rgba(200, 179, 250, 0.40)",
+                    }}
+                  >
+                    <p>Something went wrong, please try again later</p>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="relative flex items-center justify-center">
                 <div className="opacity-20">
@@ -517,14 +509,19 @@ function Page() {
           className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
           onClick={generateImage}
         >
-          <img src={DownloadIcon} alt="Download" width={20} height={20} />
+          <NextImage src={DownloadIcon} alt="Download" width={20} height={20} />
         </button>
         <button
           className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
           onClick={copyImage}
         >
-          <img src={CopyIcon} alt="Download" width={20} height={20} />
+          <NextImage src={CopyIcon} alt="Download" width={20} height={20} />
         </button>
+        <input
+          type="color"
+          className="w-16 p-3 px-4 transition-all bg-black rounded-full h-11 backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
+          onChange={(e) => setBgColor(e.target.value)}
+        />
         {/* <button
           className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
           onClick={shareToTwitter}
