@@ -18,6 +18,7 @@ import { colord, extend } from "colord";
 import harmoniesPlugin from "colord/plugins/harmonies";
 import mixPlugin from "colord/plugins/mix";
 import domtoimage from "dom-to-image";
+import Link from "next/link";
 
 const layerProperties = [
   {
@@ -27,12 +28,12 @@ const layerProperties = [
   },
   {
     count: 8,
-    avatarScale: 9,
+    avatarScale: 10,
     radius: 2.2,
   },
   {
     count: 16,
-    avatarScale: 6.5,
+    avatarScale: 8,
     radius: 3.75,
   },
   // {
@@ -78,8 +79,11 @@ const UserImageCard = (props: {
   user: { login: string; avatar_url: string };
   scale: number;
 }) => {
+  const searchParams = useSearchParams();
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
-    <div className="relative flex items-center justify-center">
+    <div className={"relative flex items-center justify-center bg-white"}>
       <div
         className="absolute rounded-full opacity-80"
         style={{
@@ -88,20 +92,40 @@ const UserImageCard = (props: {
           background: "#EDE5FF",
         }}
       ></div>
-      <div
-        className="absolute overflow-hidden bg-white rounded-full"
+      <Link
+        href={{
+          pathname: `/${props.user.login}`,
+          query: {
+            token: searchParams.get("token"),
+          },
+        }}
+        className="absolute overflow-hidden transition-all bg-white rounded-full cursor-pointer hover:opacity-80"
         style={{
           height: `calc(var(--size) * ${props.scale} / 100 )`,
           width: `calc(var(--size) * ${props.scale} / 100 )`,
           background: "#EDE5FF",
         }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         <ImageWithFade
           src={props.user.avatar_url}
           alt={props.user.login}
           layout="fill"
         />
-      </div>
+      </Link>
+      {isHovered && (
+        <div
+          className={
+            "absolute flex flex-col items-center break-words w-max animate-fade text-sm duration-75 bg-white bg-opacity-10 rounded-full p-0.5 px-2 z-10"
+          }
+          style={{
+            top: `calc(var(--size) * ${props.scale} / 200 + .7rem)`,
+          }}
+        >
+          <p>{props.user.login}</p>
+        </div>
+      )}
     </div>
   );
 };
@@ -109,6 +133,7 @@ const UserImageCard = (props: {
 function Page() {
   const [circleData, setTopFriends] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const { ref: containerRef, width, height } = useElementSize<HTMLDivElement>();
   const circleRef = useRef<HTMLDivElement>(null);
   const dataFetchedRef = useRef(false);
@@ -119,25 +144,6 @@ function Page() {
   const tiltRef = useRef<HTMLDivElement>(null);
   const [bgColor, setBgColor] = useState("");
 
-  const divRef = useRef(null);
-
-  const convertToImage = () => {
-    const node = divRef.current;
-
-    domtoimage
-      .toPng(node)
-      .then((dataUrl) => {
-        // Create a new image element
-        const img = new Image();
-        img.src = dataUrl;
-
-        // Append the image to the document, or handle it as needed
-        document.body.appendChild(img);
-      })
-      .catch((error) => {
-        console.error("Error converting div to image:", error);
-      });
-  };
   extend([harmoniesPlugin]);
   extend([mixPlugin]);
   useEffect(() => {
@@ -309,6 +315,7 @@ function Page() {
       } catch (error) {
         console.error("Error fetching data:", error);
         setLoading(false);
+        setError(true);
       }
     }
 
@@ -340,9 +347,14 @@ function Page() {
 
   const copyImage = async () => {
     if (circleRef.current) {
-      const canvas = await html2canvas(circleRef.current);
-      const img = canvas.toDataURL("image/png");
-      navigator.clipboard.writeText(img);
+      const canvas = await html2canvas(circleRef.current, {
+        scale: 2,
+      });
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const item = new ClipboardItem({ "image/png": blob });
+        await navigator.clipboard.write([item]);
+      });
     }
   };
 
@@ -513,7 +525,7 @@ function Page() {
         >
           <img src={CopyIcon} alt="Download" width={20} height={20} />
         </button>
-        <button
+        {/* <button
           className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
           onClick={shareToTwitter}
         >
@@ -534,6 +546,8 @@ function Page() {
           This div will be converted to an image.
         </div>
         <button onClick={convertToImage}>Convert to Image</button>
+          <Image src={XIcon} alt="Download" width={20} height={20} />
+        </button> */}
       </div>
     </div>
   );
