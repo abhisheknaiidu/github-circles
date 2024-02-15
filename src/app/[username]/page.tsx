@@ -294,9 +294,11 @@ function Page() {
           ...shuffleArray(combinedNewUsers),
           ...shuffleArray(stars),
         ]
+          // filter out duplicate users and the userData
           .filter(
             (user: User, index: number, self: User[]) =>
-              index === self.findIndex((t) => t.login === user.login)
+              index === self.findIndex((t) => t.login === user.login) &&
+              user.login.toLowerCase() !== userData.login.toLowerCase()
           )
           .slice(0, 24);
 
