@@ -334,13 +334,14 @@ function Page() {
 
     if (isSafari()) {
       return new Promise((resolve, reject) => {
+        if (!tiltRef.current) return reject("No tiltRef");
         toPng(tiltRef.current, { cacheBust: true })
           .then(function (dataURL1) {
             var link = document.createElement("a");
             link.download = "attempt1.png";
             link.href = dataURL1;
             link.click();
-
+            if (!tiltRef.current) return reject("No tiltRef");
             toPng(tiltRef.current, { cacheBust: true })
               .then(function (dataURL2) {
                 var link = document.createElement("a");
