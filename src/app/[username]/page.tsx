@@ -451,7 +451,7 @@ function Page() {
                   </div>
                 ) : (
                   <div
-                    className="relative flex items-center justify-center p-3 px-6 overflow-hidden bg-black shadow-2xl animate-fade rounded-3xl bg-opacity-15"
+                    className="relative flex items-center justify-center p-3 px-6 overflow-hidden bg-[#00000033] shadow-2xl animate-fade rounded-3xl"
                     style={{
                       boxShadow: "0px 4px 200px 0px rgba(200, 179, 250, 0.40)",
                     }}
