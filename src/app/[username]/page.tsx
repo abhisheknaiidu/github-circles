@@ -269,11 +269,14 @@ function Page() {
           ?.split(cookieSep)[0]
           .split("=")[1];
 
-        let userData = JSON.parse(cookie);
-        userData.avatar_url = `https://avatars.githubusercontent.com/u/${userData.id}?v=4`;
+        let userData: any;
+        if (cookie) {
+          userData = JSON.parse(cookie);
+          userData.avatar_url = `https://avatars.githubusercontent.com/u/${userData.id}?v=4`;
+        }
 
         if (
-          userData.login.toLowerCase() !== username.toString().toLowerCase()
+          userData?.login?.toLowerCase() !== username.toString().toLowerCase()
         ) {
           // fetch userdata of the current user
           const userResponse = await axios.get(
