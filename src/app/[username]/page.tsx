@@ -334,26 +334,41 @@ function Page() {
 
     if (isSafari()) {
       return new Promise((resolve, reject) => {
-        if (!tiltRef.current) return reject("No tiltRef");
+        if (tiltRef.current === null) {
+          return;
+        }
         toPng(tiltRef.current, { cacheBust: true })
           .then(function (dataURL1) {
-            var link = document.createElement("a");
-            link.download = "attempt1.png";
+            let link: any = document.createElement("a");
+            link.download = "attempt1.jpg"; // Corrected file extension
             link.href = dataURL1;
             link.click();
-            if (!tiltRef.current) return reject("No tiltRef");
-            toPng(tiltRef.current, { cacheBust: true })
-              .then(function (dataURL2) {
-                var link = document.createElement("a");
-                link.download = "attempt2.png";
-                link.href = dataURL2;
-                link.click();
-
-                resolve(dataURL2); // Resolve the promise with the second image's data URL
-              })
-              .catch(reject); // If there's an error, reject the promise
+            if (tiltRef.current === null) {
+              return;
+            }
+            return toPng(tiltRef.current);
           })
-          .catch(reject); // If there's an error, reject the promise
+          .then(function (dataURL2) {
+            let link: any = document.createElement("a");
+            link.download = "attempt2.jpg" ?? ""; // Corrected file extension
+            link.href = dataURL2;
+            link.click();
+
+            if (tiltRef.current === null) {
+              return;
+            }
+            return toPng(tiltRef.current);
+          })
+          .then(function (dataURL3) {
+            let link: any = document.createElement("a");
+            link.download = "attempt3.jpg"; // Corrected file extension
+            link.href = dataURL3;
+            link.click();
+            resolve(dataURL3); // Resolve the promise with the last image's data URL
+          })
+          .catch((err) => {
+            reject(err); // Reject the promise if there's an error
+          });
       });
     } else {
       toPng(tiltRef.current, { cacheBust: true })
