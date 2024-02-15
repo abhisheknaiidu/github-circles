@@ -5,8 +5,8 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="flex flex-col items-center justify-center h-full gap-6 p-4 pb-12 min-8">
-      <div className="text-[4rem] leading-[5.2rem] font-semibold tracking-tighter text-center md:leading-[6.8rem] md:text-[5.75rem] animate-fade">
+    <main className="flex flex-col items-center justify-center h-full gap-6 md:p-4 pb-12 min-8">
+      <div className="text-[4rem] leading-[4.5rem] font-semibold tracking-tighter text-center md:leading-[6.8rem] md:text-[5.75rem] animate-fade">
         Generate
         <br />
         GitHub Circle

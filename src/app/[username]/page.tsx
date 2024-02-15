@@ -1,21 +1,23 @@
 "use client";
-
-import CircleBG from "@/assets/CircleBG.png";
-import CircleFade from "@/assets/CircleFade.svg";
+import {
+  CSSProperties,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import axios from "axios";
+import { toPng } from "html-to-image";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import NextImage from "next/image";
 import CopyIcon from "@/assets/CopyIcon.svg";
 import DownloadIcon from "@/assets/DownloadIcon.svg";
 import VanillaTilt from "vanilla-tilt";
-import XIcon from "@/assets/XIcon.svg";
 import ImageWithFade from "@/components/ImageWithFade";
 import { useElementSize } from "@/hooks/useElementsSize";
 import { cookieSep, userCookieKey } from "@/libs/session";
-import axios from "axios";
-// import Image from "next/image";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
-import domtoimage from "dom-to-image";
-import Link from "next/link";
-import NextImage from "next/image";
 
 const layerProperties = [
   {
@@ -323,37 +325,43 @@ function Page() {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const ref = useRef<HTMLDivElement>(null);
 
-  const generateImage = async () => {
-    if (tiltRef.current) {
-      const dataUrl = await domtoimage.toPng(tiltRef.current, {
-        quality: 2,
-      });
-      var link = document.createElement("a");
-      link.download = "github-circle.png";
-      link.href = dataUrl;
-      link.click();
+  const generateImage = useCallback(() => {
+    if (tiltRef.current === null) {
+      return;
     }
-  };
+
+    toPng(tiltRef.current, { cacheBust: true })
+      .then((dataUrl) => {
+        const link = document.createElement("a");
+        link.download = "github-circle.png";
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [tiltRef]);
 
   const copyImage = async () => {
     if (circleRef.current) {
-      const blob = await domtoimage.toBlob(circleRef.current, { quality: 2 });
-      const item = new ClipboardItem({ "image/png": blob });
-      navigator.clipboard.write([item]);
+      // const blob = await domtoimage.toBlob(circleRef.current, { quality: 2 });
+      // const item = new ClipboardItem({ "image/png": blob });
+      // navigator.clipboard.write([item]);
     }
   };
 
   const size = Math.min(width, height) ? Math.min(width, height) - 20 : 0;
   return (
     <div
-      className="grid items-center w-full h-full gap-6 px-4 pt-4"
+      className="grid items-center w-full h-full gap-6 md:px-4 pt-4"
       style={{
         gridTemplateRows: "1fr auto",
       }}
     >
       <div
-        className="flex items-center justify-center w-full h-full"
+        className="flex items-center justify-center w-auto h-full ml-[-1rem] mr-[-1rem]"
         ref={containerRef}
       >
         <div
