@@ -1,15 +1,8 @@
 import Background from "@/components/Background";
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
-
 // These styles apply to every route in the application
 import Header from "@/components/Header";
 import "./globals.css";
-
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -22,7 +15,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={poppins.className}>
+    <html lang="en">
+      <head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0,maximum-scale=1.0 viewport-fit=cover minimal-ui user-scalable=no"
+        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        {/* @ts-ignore */}
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Onest:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+          rel="stylesheet"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Oi&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body
         className="grid min-h-screen gap-2 px-8 py-6"
         style={{

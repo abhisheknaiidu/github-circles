@@ -13,9 +13,6 @@ import axios from "axios";
 // import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
-import { colord, extend } from "colord";
-import harmoniesPlugin from "colord/plugins/harmonies";
-import mixPlugin from "colord/plugins/mix";
 import domtoimage from "dom-to-image";
 import Link from "next/link";
 import NextImage from "next/image";
@@ -148,22 +145,7 @@ function Page() {
   const tiltRef = useRef<HTMLDivElement>(null);
   const [bgColor, setBgColor] = useState("");
 
-  extend([harmoniesPlugin]);
-  extend([mixPlugin]);
   useEffect(() => {
-    if (circleRef.current) {
-      domtoimage
-        .toPng(circleRef.current, { quality: 1 })
-        .then((dataUrl) => {
-          var img = new Image();
-          img.src = dataUrl;
-
-          document.body.appendChild(img);
-        })
-        .catch(function (error) {
-          console.error("oops, something went wrong!", error);
-        });
-    }
     VanillaTilt.init(tiltRef.current!, {
       easing: "cubic-bezier(.17,.67,.83,.67)",
       glare: true,
@@ -175,7 +157,7 @@ function Page() {
       speed: 300,
       transition: true,
     });
-  }, [circleRef]);
+  }, []);
 
   // define layers based on available no of users
   const layers = useMemo(() => {
@@ -253,9 +235,7 @@ function Page() {
           headers
         );
 
-        const stars = starsResponse.data
-          ?.map((user: User) => user.owner)
-          ?.slice(0, 12);
+        const stars = starsResponse.data?.map((user: User) => user.owner);
 
         const combinedUsers: any = {};
         following.forEach((user: { login: string }) => {
@@ -309,10 +289,16 @@ function Page() {
           };
         }
 
+        // shouldnt contain same users
         const finalUsers = [
           ...shuffleArray(combinedNewUsers),
           ...shuffleArray(stars),
-        ].slice(0, 24);
+        ]
+          .filter(
+            (user: User, index: number, self: User[]) =>
+              index === self.findIndex((t) => t.login === user.login)
+          )
+          .slice(0, 24);
 
         setTopFriends([userData, ...finalUsers]);
         setLoading(false);
@@ -328,8 +314,8 @@ function Page() {
   }, []);
 
   const generateImage = async () => {
-    if (circleRef.current) {
-      const dataUrl = await domtoimage.toPng(circleRef.current, {
+    if (tiltRef.current) {
+      const dataUrl = await domtoimage.toPng(tiltRef.current, {
         quality: 2,
       });
       var link = document.createElement("a");
@@ -522,29 +508,6 @@ function Page() {
           className="w-16 p-3 px-4 transition-all bg-black rounded-full h-11 backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
           onChange={(e) => setBgColor(e.target.value)}
         />
-        {/* <button
-          className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
-          onClick={shareToTwitter}
-        >
-          <img src={XIcon} alt="Download" width={20} height={20} />
-        </button>
-        <input type="color" onChange={(e) => setBgColor(e.target.value)} />
-      </div>
-
-      <div>
-        <div
-          ref={divRef}
-          style={{
-            border: "1px solid #000",
-            padding: "20px",
-            margin: "20px 0",
-          }}
-        >
-          This div will be converted to an image.
-        </div>
-        <button onClick={convertToImage}>Convert to Image</button>
-          <Image src={XIcon} alt="Download" width={20} height={20} />
-        </button> */}
       </div>
     </div>
   );
