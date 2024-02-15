@@ -13,7 +13,14 @@ export default function Home() {
       </div>
       <div className="flex flex-col items-center w-full gap-2">
         <UsernameInput />
-        <span>or</span>
+        <span
+          className="opacity-0 animate-fade animation-delay-150"
+          style={{
+            animationFillMode: "forwards",
+          }}
+        >
+          or
+        </span>
         <div>
           <Link
             href="/auth"

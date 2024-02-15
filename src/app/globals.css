@@ -33,3 +33,8 @@ body {
     animation-delay: 1s;
   }
 }
+
+body {
+  background: url("/bg.png");
+  /* transition: background-position 0.5s ease-out; */
+}
