@@ -134,7 +134,7 @@ const UserImageCard = (props: {
 function Page() {
   const [circleData, setTopFriends] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
   const { ref: containerRef, width, height } = useElementSize<HTMLDivElement>();
   const circleRef = useRef<HTMLDivElement>(null);
   const dataFetchedRef = useRef(false);
@@ -307,10 +307,16 @@ function Page() {
 
         setTopFriends([userData, ...finalUsers]);
         setLoading(false);
-      } catch (error) {
-        console.error("Error fetching data:", error);
+      } catch (error: any) {
+        console.error("Error fetching data:", error.response?.status, error);
         setLoading(false);
-        setError(true);
+        if (error.response?.status === 403) {
+          setError(
+            "Rate limit exceeded, please login using github to generate the circle"
+          );
+        } else {
+          setError("TRUE");
+        }
       }
     }
 
@@ -456,7 +462,11 @@ function Page() {
                       boxShadow: "0px 4px 200px 0px rgba(200, 179, 250, 0.40)",
                     }}
                   >
-                    <p>Something went wrong, please try again later</p>
+                    <p>
+                      {error === "TRUE"
+                        ? "Something went wrong, please try again later"
+                        : error}
+                    </p>
                   </div>
                 )}
               </>
