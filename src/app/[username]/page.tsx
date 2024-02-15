@@ -18,6 +18,7 @@ import VanillaTilt from "vanilla-tilt";
 import ImageWithFade from "@/components/ImageWithFade";
 import { useElementSize } from "@/hooks/useElementsSize";
 import { cookieSep, userCookieKey } from "@/libs/session";
+import { isSafari } from "@/utils";
 
 const layerProperties = [
   {
@@ -325,23 +326,46 @@ function Page() {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const ref = useRef<HTMLDivElement>(null);
 
   const generateImage = useCallback(() => {
     if (tiltRef.current === null) {
       return;
     }
 
-    toPng(tiltRef.current, { cacheBust: true })
-      .then((dataUrl) => {
-        const link = document.createElement("a");
-        link.download = "github-circle.png";
-        link.href = dataUrl;
-        link.click();
-      })
-      .catch((err) => {
-        console.log(err);
+    if (isSafari()) {
+      return new Promise((resolve, reject) => {
+        toPng(tiltRef.current, { cacheBust: true })
+          .then(function (dataURL1) {
+            var link = document.createElement("a");
+            link.download = "attempt1.png";
+            link.href = dataURL1;
+            link.click();
+
+            toPng(tiltRef.current, { cacheBust: true })
+              .then(function (dataURL2) {
+                var link = document.createElement("a");
+                link.download = "attempt2.png";
+                link.href = dataURL2;
+                link.click();
+
+                resolve(dataURL2); // Resolve the promise with the second image's data URL
+              })
+              .catch(reject); // If there's an error, reject the promise
+          })
+          .catch(reject); // If there's an error, reject the promise
       });
+    } else {
+      toPng(tiltRef.current, { cacheBust: true })
+        .then((dataUrl) => {
+          const link = document.createElement("a");
+          link.download = "github-circle.png";
+          link.href = dataUrl;
+          link.click();
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   }, [tiltRef]);
 
   const copyImage = async () => {
