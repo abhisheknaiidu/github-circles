@@ -269,11 +269,14 @@ function Page() {
           ?.split(cookieSep)[0]
           .split("=")[1];
 
-        let userData = JSON.parse(cookie);
-        userData.avatar_url = `https://avatars.githubusercontent.com/u/${userData.id}?v=4`;
+        let userData: any;
+        if (cookie) {
+          userData = JSON.parse(cookie);
+          userData.avatar_url = `https://avatars.githubusercontent.com/u/${userData.id}?v=4`;
+        }
 
         if (
-          userData.login.toLowerCase() !== username.toString().toLowerCase()
+          userData?.login?.toLowerCase() !== username.toString().toLowerCase()
         ) {
           // fetch userdata of the current user
           const userResponse = await axios.get(
@@ -448,7 +451,7 @@ function Page() {
                   </div>
                 ) : (
                   <div
-                    className="relative flex items-center justify-center p-3 px-6 overflow-hidden bg-black shadow-2xl animate-fade rounded-3xl bg-opacity-15"
+                    className="relative flex items-center justify-center p-3 px-6 overflow-hidden bg-[#00000033] shadow-2xl animate-fade rounded-3xl"
                     style={{
                       boxShadow: "0px 4px 200px 0px rgba(200, 179, 250, 0.40)",
                     }}
