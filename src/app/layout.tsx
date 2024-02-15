@@ -21,6 +21,39 @@ export default function RootLayout({
           name="viewport"
           content="width=device-width, initial-scale=1.0,maximum-scale=1.0 viewport-fit=cover minimal-ui user-scalable=no"
         />
+        <title>GitHub Circles</title>
+        <meta name="description" content="Generate GitHub Circles" />
+        <meta property="og:title" content="GitHub Circles" key="og:title" />
+        <meta
+          property="og:description"
+          content="Generate GitHub Circles"
+          key="og:description"
+        />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+          name="twitter:title"
+          content="GitHub Circles"
+          key="twitter:title"
+        />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
+        <meta
+          name="twitter:description"
+          content="Generate GitHub Circles"
+          key="twitter:description"
+        />
+        <meta
+          property="og:image"
+          content={"/assets/github-circles-og.png"}
+          key="og:image"
+        />
+        <meta
+          name="twitter:image"
+          content={"/assets/github-circles-og.png"}
+          key="twitter:image"
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         {/* @ts-ignore */}
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
