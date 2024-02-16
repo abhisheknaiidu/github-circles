@@ -40,9 +40,11 @@ export default function RootLayout({
           content="GitHub Circles"
           key="twitter:title"
         />
+
         <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+          name="twitter:image"
+          content={"/github-circles-og.png"}
+          key="twitter:image"
         />
         <meta
           name="twitter:description"
@@ -50,15 +52,21 @@ export default function RootLayout({
           key="twitter:description"
         />
         <meta
+          name="twitter:url"
+          content="https://www.githubcircles.xyz/"
+          key="twitter:url"
+        />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
+
+        <meta
           property="og:image"
           content={"/github-circles-og.png"}
           key="og:image"
         />
-        <meta
-          name="twitter:image"
-          content={"/github-circles-og.png"}
-          key="twitter:image"
-        />
+
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         {/* @ts-ignore */}
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
