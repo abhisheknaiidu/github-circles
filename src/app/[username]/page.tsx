@@ -395,8 +395,8 @@ function Page() {
   const size = Math.min(width, height) ? Math.min(width, height) - 20 : 0;
   return (
     <div
-      className="grid items-center w-full h-full gap-6 md:px-4 pt-4"
-      style={{
+    className="grid items-center w-full h-full gap-6 pt-4 md:px-4"
+    style={{
         gridTemplateRows: "1fr auto",
       }}
     >
@@ -440,7 +440,7 @@ function Page() {
                       {!bgColor && (
                         <>
                           <ImageWithFade
-                            src={"CircleFade.svg"}
+                            src={"CircleFade.jpg"}
                             alt="Circle Fade"
                             className="absolute"
                             height={size}
@@ -450,7 +450,7 @@ function Page() {
                             }}
                           />
                           <ImageWithFade
-                            src={"CircleBG.png"}
+                            src={"CircleBG.webp"}
                             alt="Circle Background"
                             className="absolute opacity-50 blur-md"
                             height={(size * 3.25) / 4}
