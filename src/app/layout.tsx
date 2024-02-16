@@ -110,7 +110,7 @@ export default function RootLayout({
       </head>
       <body
         className={
-          "transition-[background-position background-size] duration-1000 ease-slow grid min-h-screen gap-2 px-8 py-6" +
+          "transition-[background-position background-size] duration-1000 ease-slow grid min-h-screen gap-2 px-4 py-4 md:px-8 md:py-6" +
           " " +
           onest.className
         }
