@@ -43,7 +43,7 @@ export default function RootLayout({
 
         <meta
           name="twitter:image"
-          content={"/github-circles-og.png"}
+          content={"https://www.githubcircles.xyz/github-circles-og.png"}
           key="twitter:image"
         />
         <meta
