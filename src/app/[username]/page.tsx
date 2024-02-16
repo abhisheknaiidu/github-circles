@@ -328,25 +328,25 @@ function Page() {
   }, []);
 
   const generateImage = useCallback(() => {
-    if (tiltRef.current === null) {
+    if (circleRef.current === null) {
       return;
     }
 
     if (isSafari()) {
       return new Promise((resolve, reject) => {
-        if (tiltRef.current === null) {
+        if (circleRef.current === null) {
           return;
         }
-        toPng(tiltRef.current, { cacheBust: true })
+        toPng(circleRef.current, { cacheBust: true })
           .then(function (dataURL1) {
             let link: any = document.createElement("a");
             link.download = "attempt1.jpg"; // Corrected file extension
             link.href = dataURL1;
             // link.click();
-            if (tiltRef.current === null) {
+            if (circleRef.current === null) {
               return;
             }
-            return toPng(tiltRef.current);
+            return toPng(circleRef.current);
           })
           .then(function (dataURL2) {
             let link: any = document.createElement("a");
@@ -354,10 +354,10 @@ function Page() {
             link.href = dataURL2;
             // link.click();
 
-            if (tiltRef.current === null) {
+            if (circleRef.current === null) {
               return;
             }
-            return toPng(tiltRef.current);
+            return toPng(circleRef.current);
           })
           .then(function (dataURL3) {
             let link: any = document.createElement("a");
@@ -371,7 +371,7 @@ function Page() {
           });
       });
     } else {
-      toPng(tiltRef.current, { cacheBust: true })
+      toPng(circleRef.current, { cacheBust: true })
         .then((dataUrl) => {
           const link = document.createElement("a");
           link.download = "github-circle.png";
@@ -382,7 +382,7 @@ function Page() {
           console.log(err);
         });
     }
-  }, [tiltRef]);
+  }, [circleRef]);
 
   const copyImage = async () => {
     if (circleRef.current) {
@@ -395,8 +395,8 @@ function Page() {
   const size = Math.min(width, height) ? Math.min(width, height) - 20 : 0;
   return (
     <div
-    className="grid items-center w-full h-full gap-6 pt-4 md:px-4"
-    style={{
+      className="grid items-center w-full h-full gap-6 pt-4 md:px-4"
+      style={{
         gridTemplateRows: "1fr auto",
       }}
     >
@@ -420,8 +420,8 @@ function Page() {
               <>
                 {circleData && !error && circleData.length != 0 ? (
                   <div
-                    className="animate-fade relative flex items-center justify-center overflow-hidden rounded-3xl h-[var(--size)] w-[var(--size)]"
-                    ref={tiltRef}
+                    className="animate-fade relative flex items-center justify-center overflow-hidden h-[var(--size)] w-[var(--size)]"
+                    ref={circleRef}
                     style={
                       {
                         "--size": size + "px",
@@ -433,10 +433,7 @@ function Page() {
                       } as CSSProperties
                     }
                   >
-                    <div
-                      className="absolute flex items-center justify-center w-full h-full"
-                      ref={circleRef}
-                    >
+                    <div className="absolute flex items-center justify-center w-full h-full">
                       {!bgColor && (
                         <>
                           <ImageWithFade
