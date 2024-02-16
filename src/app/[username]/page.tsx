@@ -342,7 +342,7 @@ function Page() {
             let link: any = document.createElement("a");
             link.download = "attempt1.jpg"; // Corrected file extension
             link.href = dataURL1;
-            link.click();
+            // link.click();
             if (tiltRef.current === null) {
               return;
             }
@@ -352,7 +352,7 @@ function Page() {
             let link: any = document.createElement("a");
             link.download = "attempt2.jpg" ?? ""; // Corrected file extension
             link.href = dataURL2;
-            link.click();
+            // link.click();
 
             if (tiltRef.current === null) {
               return;
