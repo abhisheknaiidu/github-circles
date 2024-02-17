@@ -23,8 +23,8 @@ import { cookieSep, userCookieKey } from "@/libs/session";
 import { isSafari } from "@/utils";
 
 const sharableContent = {
-  twitter: `Show off your coding connections in style at www.githubcircles.xyz NOW 🌟
-  
+  twitter: `discover who's in your GitHub circle!
+  check out this cool tool to visualize your GitHub interactions and here's mine
 `,
   linkedin: `🚀 Exciting News! Just discovered this amazing tool - GitHub Circle Generator! 🌀✨
 
@@ -155,13 +155,23 @@ function Page() {
   const [error, setError] = useState("");
   const { ref: containerRef, width, height } = useElementSize<HTMLDivElement>();
   const circleRef = useRef<HTMLDivElement>(null);
+  const tiltRef = useRef<HTMLDivElement>(null);
+  const dockRef = useRef<HTMLDivElement>(null);
   const dataFetchedRef = useRef(false);
   const params = useParams();
   const searchParams = useSearchParams();
   const username = params.username;
   const token = searchParams.get("token");
-  const tiltRef = useRef<HTMLDivElement>(null);
   const [bgColor, setBgColor] = useState("");
+
+  const circleRect = circleRef.current?.getBoundingClientRect();
+  const dockRect = dockRef.current?.getBoundingClientRect();
+  const dockAdjustmentStyle = {
+    transform:
+      dockRect && circleRect && dockRect.top - circleRect.bottom > 40
+        ? `translateY(${circleRect.bottom - dockRect.top + 30}px)`
+        : "translateY(0)",
+  };
 
   useEffect(() => {
     // enable only for desktop
@@ -355,27 +365,27 @@ function Page() {
         if (circleRef.current === null) {
           return;
         }
-        toPng(circleRef.current, { cacheBust: true })
+        toPng(circleRef.current, { cacheBust: true, quality: 4000 / size })
           .then(function (dataURL1) {
             let link: any = document.createElement("a");
-            link.download = "github-circle.png"; // Corrected file extension
+            link.download = "github-circle-1.png"; // Corrected file extension
             link.href = dataURL1;
             // link.click();
             if (circleRef.current === null) {
               return;
             }
-            return toPng(circleRef.current);
+            return toPng(circleRef.current, { quality: 4000 / size });
           })
           .then(function (dataURL2) {
             let link: any = document.createElement("a");
-            link.download = "github-circle.png" ?? ""; // Corrected file extension
+            link.download = "github-circle-2.png" ?? ""; // Corrected file extension
             link.href = dataURL2;
             // link.click();
 
             if (circleRef.current === null) {
               return;
             }
-            return toPng(circleRef.current);
+            return toPng(circleRef.current, { quality: 4000 / size });
           })
           .then(function (dataURL3) {
             let link: any = document.createElement("a");
@@ -389,7 +399,7 @@ function Page() {
           });
       });
     } else {
-      toPng(circleRef.current, { cacheBust: true })
+      toPng(circleRef.current, { cacheBust: true, quality: 4000 / size })
         .then((dataUrl) => {
           const link = document.createElement("a");
           link.download = "github-circle.png";
@@ -403,7 +413,10 @@ function Page() {
   }, [circleRef]);
 
   const shareToTwitter = () => {
-    const url = `https://githubcircles.xyz/${username}`;
+    const url = `https://githubcircles.xyz/${username}?${Math.floor(
+      Math.random() * 1000
+    ).toString(16)}=1`;
+    // const url = `https://githubcircles.xyz/${username}?${Math.floor(Math.random() * 1000)}`;
     const text = sharableContent.twitter;
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
       text
@@ -578,22 +591,28 @@ function Page() {
             ))}
         </div>
       </div>
-      <div className="flex items-center justify-center w-full gap-4 animate-fade">
+      <div
+        className="flex items-center justify-center w-full gap-4 animate-fade"
+        ref={dockRef}
+      >
         <button
           className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
           onClick={generateImage}
+          style={dockAdjustmentStyle}
         >
           <NextImage src={DownloadIcon} alt="Download" width={20} height={20} />
         </button>
         <button
           className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
           onClick={shareToTwitter}
+          style={dockAdjustmentStyle}
         >
           <NextImage src={XIcon} alt="Download" width={20} height={20} />
         </button>
         <button
           className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
           onClick={shareToLinkedin}
+          style={dockAdjustmentStyle}
         >
           <NextImage src={LinkedInIcon} alt="Download" width={20} height={20} />
         </button>
@@ -601,6 +620,7 @@ function Page() {
           type="color"
           className="w-16 p-3 px-4 transition-all bg-black rounded-full h-11 backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
           onChange={(e) => setBgColor(e.target.value)}
+          style={dockAdjustmentStyle}
         />
       </div>
     </div>
