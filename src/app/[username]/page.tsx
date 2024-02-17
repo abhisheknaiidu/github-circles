@@ -19,6 +19,7 @@ import ImageWithFade from "@/components/ImageWithFade";
 import { useElementSize } from "@/hooks/useElementsSize";
 import { cookieSep, userCookieKey } from "@/libs/session";
 import { isSafari } from "@/utils";
+import { trackEvent } from "@/analytics";
 
 const layerProperties = [
   {
@@ -160,6 +161,7 @@ function Page() {
       speed: 300,
       transition: true,
     });
+    trackEvent("userpage_landing", { username: username });
   }, []);
 
   // define layers based on available no of users
@@ -340,7 +342,7 @@ function Page() {
         toPng(tiltRef.current, { cacheBust: true })
           .then(function (dataURL1) {
             let link: any = document.createElement("a");
-            link.download = "attempt1.jpg"; // Corrected file extension
+            link.download = "github-circle.png"; // Corrected file extension
             link.href = dataURL1;
             // link.click();
             if (tiltRef.current === null) {
@@ -350,7 +352,7 @@ function Page() {
           })
           .then(function (dataURL2) {
             let link: any = document.createElement("a");
-            link.download = "attempt2.jpg" ?? ""; // Corrected file extension
+            link.download = "github-circle.png" ?? ""; // Corrected file extension
             link.href = dataURL2;
             // link.click();
 
@@ -361,7 +363,7 @@ function Page() {
           })
           .then(function (dataURL3) {
             let link: any = document.createElement("a");
-            link.download = "attempt3.jpg"; // Corrected file extension
+            link.download = "github-circle.png"; // Corrected file extension
             link.href = dataURL3;
             link.click();
             resolve(dataURL3); // Resolve the promise with the last image's data URL
@@ -383,14 +385,6 @@ function Page() {
         });
     }
   }, [tiltRef]);
-
-  const copyImage = async () => {
-    if (circleRef.current) {
-      // const blob = await domtoimage.toBlob(circleRef.current, { quality: 2 });
-      // const item = new ClipboardItem({ "image/png": blob });
-      // navigator.clipboard.write([item]);
-    }
-  };
 
   const size = Math.min(width, height) ? Math.min(width, height) - 20 : 0;
   return (
@@ -559,12 +553,6 @@ function Page() {
           onClick={generateImage}
         >
           <NextImage src={DownloadIcon} alt="Download" width={20} height={20} />
-        </button>
-        <button
-          className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
-          onClick={copyImage}
-        >
-          <NextImage src={CopyIcon} alt="Download" width={20} height={20} />
         </button>
         <input
           type="color"

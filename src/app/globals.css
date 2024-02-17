@@ -8,6 +8,7 @@
   --background-end-rgb: 0, 0, 0;
 }
 
+html,
 body {
   color: rgb(var(--foreground-rgb));
   font-family: "Onest", sans-serif;

@@ -1,11 +1,19 @@
-import GitHubIcon from "@/assets/GitHubIcon.svg";
-import UsernameInput from "@/components/UsernameInput";
+"use client";
+
+import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import GitHubIcon from "@/assets/GitHubIcon.svg";
+import UsernameInput from "@/components/UsernameInput";
+import { trackEvent } from "@/analytics";
 
 export default function Home() {
+  useEffect(() => {
+    trackEvent("homepage_landing");
+  }, []);
+
   return (
-    <main className="flex flex-col items-center justify-center h-full gap-6 md:p-4 pb-12 min-8">
+    <main className="flex flex-col items-center justify-center h-full  gap-6 md:p-4 pb-12 min-8">
       <div className="text-[4rem] leading-[4.5rem] font-semibold tracking-tighter text-center md:leading-[6.8rem] md:text-[5.75rem] animate-fade">
         Generate
         <br />
@@ -35,15 +43,15 @@ export default function Home() {
         </div>
       </div>
       <div
-        className="text-center text-slate-300 max-w-[34rem] font-light opacity-0 animate-fade animation-delay-200"
+        className="text-center text-slate-300 max-w-[28rem] font-light opacity-0 animate-fade animation-delay-200"
         style={{
           animationFillMode: "forwards",
         }}
       >
         <p className="opacity-80">
-          Transform your GitHub connections into captivating circle image. Craft
-          a unique representation of your coding journey and standout
-          collaborators in your projects.
+          generate a visual representation of the people and projects you
+          recently interacted with on GitHub, and create an image of your GitHub
+          circle.
         </p>
       </div>
     </main>
