@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Header from "@/components/Header";
 import "./globals.css";
 import { Onest } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 const onest = Onest({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -121,6 +122,7 @@ export default function RootLayout({
         <Header />
         <Background />
         {children}
+        <Analytics />
       </body>
     </html>
   );
