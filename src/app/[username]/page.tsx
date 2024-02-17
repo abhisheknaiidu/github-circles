@@ -24,7 +24,7 @@ import { isSafari } from "@/utils";
 
 const sharableContent = {
   twitter: `discover who's in your GitHub circle!
-check out this cool tool to visualize your GitHub interactions and here's mine
+check out this cool tool to visualize your GitHub interactions and here's mine :)
 `,
   linkedin: `🚀 Exciting News! Just discovered this amazing tool - GitHub Circle Generator! 🌀✨
 
@@ -621,6 +621,7 @@ function Page() {
           className="w-16 p-3 px-4 transition-all bg-black rounded-full h-11 backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
           onChange={(e) => setBgColor(e.target.value)}
           style={dockAdjustmentStyle}
+          defaultValue={"#8E7AB5"}
         />
       </div>
     </div>
