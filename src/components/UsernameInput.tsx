@@ -25,9 +25,6 @@ function UsernameInput() {
         className="px-5 py-2 text-black rounded-full bg-slate-200 hover:bg-slate-300"
         href={{
           pathname: `/${username}`,
-          query: {
-            token: DEFAULT_TOKEN,
-          },
         }}
       >
         Generate
