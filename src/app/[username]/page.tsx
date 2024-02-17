@@ -24,15 +24,15 @@ import { isSafari } from "@/utils";
 
 const sharableContent = {
   twitter: `discover who's in your GitHub circle!
-  check out this cool tool to visualize your GitHub interactions and here's mine
+check out this cool tool to visualize your GitHub interactions and here's mine
 `,
   linkedin: `🚀 Exciting News! Just discovered this amazing tool - GitHub Circle Generator! 🌀✨
 
-  Generate your personalized GitHub circle at GitHub Circle and showcase your repositories in a creative way! 🖥️🔗
+Generate your personalized GitHub circle at GitHub Circle and showcase your repositories in a creative way! 🖥️🔗
   
-  👉 Download Your GitHub Circle Now!
+👉 Download Your GitHub Circle Now!
   
-  Spread the word by sharing this post and let your network experience the fun too! 🌐`,
+Spread the word by sharing this post and let your network experience the fun too! 🌐`,
 };
 
 const layerProperties = [
