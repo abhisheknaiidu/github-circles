@@ -7,9 +7,9 @@ import { Onest } from "next/font/google";
 const onest = Onest({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "GitHub Circles: Generate GitHub Visual Representation",
+  title: "GitHub Circles",
   description:
-    "Generate a visual representation of the people and projects you recently interacted with on GitHub, and create an image of your GitHub circle",
+    "See at a glance the folks and projects you've been vibing with on GitHub. Capture the essence of your GitHub circle in a single image",
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     siteName: "GitHub Circles",
     title: "GitHub Circles: Generate GitHub Visual Representation",
     description:
-      "Generate a visual representation of the people and projects you recently interacted with on GitHub, and create an image of your GitHub circle",
+      "See at a glance the folks and projects you've been vibing with on GitHub. Capture the essence of your GitHub circle in a single image",
     images: [
       {
         url: "/github-circles-og.png",

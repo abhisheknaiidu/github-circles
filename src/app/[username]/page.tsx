@@ -14,12 +14,27 @@ import Link from "next/link";
 import NextImage from "next/image";
 import CopyIcon from "@/assets/CopyIcon.svg";
 import DownloadIcon from "@/assets/DownloadIcon.svg";
+import XIcon from "@/assets/XIcon.svg";
+import LinkedInIcon from "@/assets/LinkedInIcon.svg";
 import VanillaTilt from "vanilla-tilt";
 import ImageWithFade from "@/components/ImageWithFade";
 import { useElementSize } from "@/hooks/useElementsSize";
 import { cookieSep, userCookieKey } from "@/libs/session";
 import { isSafari } from "@/utils";
 import { trackEvent } from "@/analytics";
+
+const sharableContent = {
+  twitter: `Show off your coding connections in style at www.githubcircles.xyz NOW 🌟
+  
+`,
+  linkedin: `🚀 Exciting News! Just discovered this amazing tool - GitHub Circle Generator! 🌀✨
+
+  Generate your personalized GitHub circle at GitHub Circle and showcase your repositories in a creative way! 🖥️🔗
+  
+  👉 Download Your GitHub Circle Now!
+  
+  Spread the word by sharing this post and let your network experience the fun too! 🌐`,
+};
 
 const layerProperties = [
   {
@@ -386,6 +401,24 @@ function Page() {
     }
   }, [circleRef]);
 
+  const shareToTwitter = () => {
+    const url = `https://githubcircles.xyz/${username}`;
+    const text = sharableContent.twitter;
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+      text
+    )}&url=${url}`;
+    window.open(twitterUrl, "_blank");
+  };
+
+  const shareToLinkedin = () => {
+    const url = `https://githubcircles.xyz/${username}`;
+    const text = sharableContent.linkedin;
+    const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}&summary=${encodeURIComponent(
+      text
+    )}`;
+    window.open(linkedinUrl, "_blank");
+  };
+
   const size = Math.min(width, height) ? Math.min(width, height) - 20 : 0;
   return (
     <div
@@ -550,6 +583,18 @@ function Page() {
           onClick={generateImage}
         >
           <NextImage src={DownloadIcon} alt="Download" width={20} height={20} />
+        </button>
+        <button
+          className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
+          onClick={shareToTwitter}
+        >
+          <NextImage src={XIcon} alt="Download" width={20} height={20} />
+        </button>
+        <button
+          className="p-3 transition-all bg-black rounded-full backdrop-blur-sm bg-opacity-20 hover:bg-opacity-30"
+          onClick={shareToLinkedin}
+        >
+          <NextImage src={LinkedInIcon} alt="Download" width={20} height={20} />
         </button>
         <input
           type="color"
