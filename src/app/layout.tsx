@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://www.githubcircles.xyz/",
     siteName: "GitHub Circles",
-    title: "GitHub Circles: Generate GitHub Visual Representation",
+    title: "GitHub Circles",
     description:
       "See at a glance the folks and projects you've been vibing with on GitHub. Capture the essence of your GitHub circle in a single image",
     images: [
