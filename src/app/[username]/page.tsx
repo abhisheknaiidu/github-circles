@@ -19,7 +19,6 @@ import ImageWithFade from "@/components/ImageWithFade";
 import { useElementSize } from "@/hooks/useElementsSize";
 import { cookieSep, userCookieKey } from "@/libs/session";
 import { isSafari } from "@/utils";
-import { trackEvent } from "@/analytics";
 
 const layerProperties = [
   {
@@ -150,6 +149,9 @@ function Page() {
   const [bgColor, setBgColor] = useState("");
 
   useEffect(() => {
+    // enable only for desktop
+    if (window.innerWidth < 768) return;
+
     VanillaTilt.init(tiltRef.current!, {
       easing: "cubic-bezier(.17,.67,.83,.67)",
       glare: true,
@@ -161,7 +163,6 @@ function Page() {
       speed: 300,
       transition: true,
     });
-    trackEvent("userpage_landing", { username: username });
   }, []);
 
   // define layers based on available no of users

@@ -5,13 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import GitHubIcon from "@/assets/GitHubIcon.svg";
 import UsernameInput from "@/components/UsernameInput";
-import { trackEvent } from "@/analytics";
 
 export default function Home() {
-  useEffect(() => {
-    trackEvent("homepage_landing");
-  }, []);
-
   return (
     <main className="flex flex-col items-center justify-center h-full  gap-6 md:p-4 pb-12 min-8">
       <div className="text-[4rem] leading-[4.5rem] font-semibold tracking-tighter text-center md:leading-[6.8rem] md:text-[5.75rem] animate-fade">

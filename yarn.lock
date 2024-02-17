@@ -157,11 +157,6 @@
   resolved "https://registry.npmjs.org/@types/json5/-/json5-0.0.29.tgz"
   integrity sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==
 
-"@types/mixpanel-browser@^2.49.0":
-  version "2.49.0"
-  resolved "https://registry.npmjs.org/@types/mixpanel-browser/-/mixpanel-browser-2.49.0.tgz"
-  integrity sha512-StmgUnS58d44DmIAEX9Kk8qwisAYCl6E2qulIjYyHXUPuJCPOuyUMTTKBp+aU2F2do+kxAzCxiBtsB4fnBT9Fg==
-
 "@types/node@^20":
   version "20.10.4"
   resolved "https://registry.npmjs.org/@types/node/-/node-20.10.4.tgz"
@@ -244,6 +239,13 @@
   version "1.2.0"
   resolved "https://registry.npmjs.org/@ungap/structured-clone/-/structured-clone-1.2.0.tgz"
   integrity sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==
+
+"@vercel/analytics@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/@vercel/analytics/-/analytics-1.2.0.tgz"
+  integrity sha512-Q9hduY6+i73Is1m57Y3OlawleeYVi4cvuh/0j6IwmSndMOE4+BKkMwjnwz+7xnqfZCanipIG6+q+zHalH9X0Zg==
+  dependencies:
+    server-only "^0.0.1"
 
 acorn-jsx@^5.3.2:
   version "5.3.2"
@@ -1665,11 +1667,6 @@ minimist@^1.2.0, minimist@^1.2.6:
   resolved "https://registry.npmjs.org/minimist/-/minimist-1.2.8.tgz"
   integrity sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==
 
-mixpanel-browser@2.45.0:
-  version "2.45.0"
-  resolved "https://registry.npmjs.org/mixpanel-browser/-/mixpanel-browser-2.45.0.tgz"
-  integrity sha512-PQ1DaTk68yyYtLA0iejmzPA9iNDhT4uIZpqZjRTw7HWpYfl123fydHb2laKanaKjm8YDmrGGz3+xZ4Q6joogyg==
-
 ms@^2.1.1, ms@2.1.2:
   version "2.1.2"
   resolved "https://registry.npmjs.org/ms/-/ms-2.1.2.tgz"
@@ -1694,7 +1691,7 @@ natural-compare@^1.4.0:
   resolved "https://registry.npmjs.org/natural-compare/-/natural-compare-1.4.0.tgz"
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
 
-next@14.0.4:
+"next@>= 13", next@14.0.4:
   version "14.0.4"
   resolved "https://registry.npmjs.org/next/-/next-14.0.4.tgz"
   integrity sha512-qbwypnM7327SadwFtxXnQdGiKpkuhaRLE2uq62/nRul9cj9KhQ5LhHmlziTNqUidZotw/Q1I9OjirBROdUJNgA==
@@ -1997,7 +1994,7 @@ react-is@^16.13.1:
   resolved "https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
-react@^18, react@^18.2.0, "react@>= 16.8.0 || 17.x.x || ^18.0.0-0":
+react@^18, "react@^18 || ^19", react@^18.2.0, "react@>= 16.8.0 || 17.x.x || ^18.0.0-0":
   version "18.2.0"
   resolved "https://registry.npmjs.org/react/-/react-18.2.0.tgz"
   integrity sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==
@@ -2128,6 +2125,11 @@ semver@^7.5.4:
   integrity sha512-1bCSESV6Pv+i21Hvpxp3Dx+pSD8lIPt8uVjRrxAUt/nbswYc+tK6Y2btiULjd4+fnq15PX+nqQDC7Oft7WkwcA==
   dependencies:
     lru-cache "^6.0.0"
+
+server-only@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.npmjs.org/server-only/-/server-only-0.0.1.tgz"
+  integrity sha512-qepMx2JxAa5jjfzxG79yPPq+8BuFToHd1hm7kI+Z4zAq1ftQiP7HcxMhDDItrbtwVeLg/cY2JnKnrcFkmiswNA==
 
 set-function-length@^1.1.1:
   version "1.1.1"
