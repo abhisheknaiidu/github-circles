@@ -36,6 +36,6 @@ body {
 }
 
 body {
-  background: url("/bg.png");
-  /* transition: background-position 0.5s ease-out; */
+  background: url("/bg.webp");
+  background-color: #030216;
 }
