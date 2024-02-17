@@ -66,6 +66,7 @@ export default function RootLayout({
           name="viewport"
           content="width=device-width, initial-scale=1.0,maximum-scale=1.0 viewport-fit=cover minimal-ui user-scalable=no"
         />
+        <link rel="icon" href="/favicon.svg" sizes="any" />
         {/* <title>GitHub Circles</title>
         <meta name="description" content="Generate GitHub Circles" />
         <meta property="og:title" content="GitHub Circles" key="og:title" />
