@@ -110,11 +110,12 @@ const UserImageCard = (props: {
       ></div>
       <Link
         href={{
-          pathname: `/${props.user.login}`,
+          pathname: `https://github.com/${props.user.login}`,
           query: {
             token: searchParams.get("token"),
           },
         }}
+        target="_blank"
         className="absolute overflow-hidden transition-all bg-white rounded-full cursor-pointer hover:opacity-80"
         style={{
           height: `calc(var(--size) * ${props.scale} / 100 )`,

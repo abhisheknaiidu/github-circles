@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-const DEFAULT_TOKEN = process.env.NEXT_PUBLIC_DEFAULT_TOKEN;
 
 function UsernameInput() {
   const [username, setUsername] = useState("");
