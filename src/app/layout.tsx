@@ -8,17 +8,17 @@ import { Analytics } from "@vercel/analytics/react";
 const onest = Onest({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "GitHub Circles",
+  title: "GitHub Circles Generator",
   description:
-    "See at a glance the folks and projects you've been vibing with on GitHub. Capture the essence of your GitHub circle in a single image",
+    "Generate GitHub Circles and capture the essence of your GitHub circle in a single image. See at a glance the folks and projects you've been vibing with on GitHub using circle generator.",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "https://www.githubcircles.xyz/",
     siteName: "GitHub Circles",
-    title: "GitHub Circles",
+    title: "GitHub Circles Generator",
     description:
-      "See at a glance the folks and projects you've been vibing with on GitHub. Capture the essence of your GitHub circle in a single image",
+      "Generate GitHub Circles and capture the essence of your GitHub circle in a single image. See at a glance the folks and projects you've been vibing with on GitHub.",
     images: [
       {
         url: "/github-circles-og.png",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     ],
   },
   keywords:
-    "Github, GitHub Visual Representation, GitHub Circle, GitHub Circle Generator, GitHub Circle Image, GitHub Circle Image Generator, GitHub Circle Maker, GitHub Circle Creator, GitHub Circle Creator Online, GitHub Circle Creator Tool, GitHub Circle Creator App, GitHub Circle Creator Website, GitHub Circle Creator Software, GitHub Circle Creator Program, GitHub Circle Creator Application, GitHub Circle Creator Service, GitHub Circle Creator Company, GitHub Circle Creator Business, GitHub Circle Creator Product, GitHub Circle Creator Solution, GitHub Circle Creator System, GitHub Circle Creator Platform",
+    "Generate GitHub Circles, GitHub Circle Generator, GitHub Visual Representation, GitHub Circle Image, GitHub Circle Image Generator, GitHub Circle Maker, GitHub Circle Creator",
   metadataBase: new URL("https://www.githubcircles.xyz/"),
   robots: {
     index: true,
