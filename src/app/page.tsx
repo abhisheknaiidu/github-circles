@@ -44,7 +44,7 @@ export default function Home() {
         }}
       >
         <p className="opacity-80">
-          generate a visual representation of the people and projects you
+          Generate a visual representation of the people and projects you
           recently interacted with on GitHub, and create an image of your GitHub
           circle.
         </p>

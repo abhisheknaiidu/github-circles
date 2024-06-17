@@ -14,7 +14,7 @@ function UsernameInput() {
     >
       <input
         type="text"
-        placeholder="enter your GitHub username "
+        placeholder="Enter your GitHub username "
         className="w-full mx-3 bg-transparent border-none outline-none"
         name="gh-username"
         value={username}
